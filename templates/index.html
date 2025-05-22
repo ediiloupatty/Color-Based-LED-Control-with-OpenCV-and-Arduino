@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Deteksi Warna & Kontrol LED Arduino</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Neural Network Background Animation */
+        .neural-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.1;
+        }
+
+        .neural-bg canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Floating particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            animation: float 15s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .container {
+            position: relative;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            z-index: 2;
+        }
+
+        /* Glassmorphism header */
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(45deg, #ff6b6b, #ffd93d, #6bcf7f);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 3s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+
+        /* Video section with advanced styling */
+        .video-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .video-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcf7f, #4ecdc4, #45b7d1);
+            background-size: 200% 100%;
+            animation: rainbow 3s linear infinite;
+        }
+
+        @keyframes rainbow {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+        }
+
+        .video-container {
+            position: relative;
+            margin-bottom: 25px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        #video-stream {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        #video-stream:hover {
+            transform: scale(1.02);
+        }
+
+        /* Control buttons with neon effect */
+        .control-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .control-section {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        /* Status panel with advanced styling */
+        .status-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .status-panel h3 {
+            color: white;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .status-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .status-item span:first-child {
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+        }
+
+        .status-value {
+            font-weight: bold;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .status-value::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .status-value:hover::before {
+            left: 100%;
+        }
+
+        .color-merah { 
+            background: linear-gradient(45deg, #ff6b6b, #ee5a5a);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+        }
+        .color-kuning { 
+            background: linear-gradient(45deg, #ffd93d, #ffc107);
+            color: #333;
+            box-shadow: 0 4px 15px rgba(255, 217, 61, 0.4);
+        }
+        .color-hijau { 
+            background: linear-gradient(45deg, #6bcf7f, #51cf66);
+            color: white;
+            box-shadow: 0 4px 15px rgba(107, 207, 127, 0.4);
+        }
+        .color-none { 
+            background: linear-gradient(45deg, #868e96, #6c757d);
+            color: white;
+            box-shadow: 0 4px 15px rgba(134, 142, 150, 0.4);
+        }
+
+        /* Modern buttons */
+        button {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+
+        button:hover::before {
+            transform: translateX(100%);
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        button:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #51cf66, #40c057);
+            box-shadow: 0 8px 25px rgba(81, 207, 102, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #ff6b6b, #fa5252);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-warning {
+            background: linear-gradient(45deg, #ffd93d, #ffc107);
+            color: #333;
+            box-shadow: 0 8px 25px rgba(255, 217, 61, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #868e96, #6c757d);
+            box-shadow: 0 8px 25px rgba(134, 142, 150, 0.3);
+        }
+
+        /* Manual control section */
+        .manual-control {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .manual-control h3 {
+            color: white;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .led-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        /* Instructions with modern styling */
+        .instructions {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .instructions h3 {
+            color: white;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .instructions ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .instructions li {
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 10px;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+            border-left: 3px solid #4ecdc4;
+            transition: all 0.3s ease;
+        }
+
+        .instructions li:hover {
+            transform: translateX(5px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .instructions li::before {
+            content: '▶';
+            color: #4ecdc4;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        .detection-status {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .detection-active {
+            background: linear-gradient(45deg, #51cf66, #40c057);
+            color: white;
+            box-shadow: 0 4px 15px rgba(81, 207, 102, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        .detection-inactive {
+            background: linear-gradient(45deg, #ff6b6b, #fa5252);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Responsive design */
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .control-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .led-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+        }
+
+        /* Notification styles */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 15px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Neural Network Background -->
+    <div class="neural-bg">
+        <canvas id="neural-canvas"></canvas>
+    </div>
+
+    <!-- Floating Particles -->
+    <div class="particles" id="particles"></div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🔴🟡🟢 AI COLOR DETECTION SYSTEM</h1>
+        </div>
+        
+        <div class="main-content">
+            <div class="video-section">
+                <div class="video-container">
+                    <img id="video-stream" src="/video_feed" alt="Video Stream">
+                </div>
+                
+                <div class="control-buttons">
+                    <button id="start-btn" class="btn-success" onclick="startDetection()">
+                        ▶️ Mulai Deteksi Warna
+                    </button>
+                    <button id="stop-btn" class="btn-danger" onclick="stopDetection()">
+                        ⏹️ Hentikan Deteksi
+                    </button>
+                </div>
+            </div>
+            
+            <div class="control-section">
+                <div class="status-panel">
+                    <h3>📊 Status Sistem</h3>
+                    <div class="status-item">
+                        <span>Status Deteksi:</span>
+                        <span id="detection-status" class="detection-status detection-inactive">Tidak Aktif</span>
+                    </div>
+                    <div class="status-item">
+                        <span>Warna Terdeteksi:</span>
+                        <span id="current-color" class="status-value color-none">Tidak ada</span>
+                    </div>
+                </div>
+                
+                <div class="manual-control">
+                    <h3>🎮 Kontrol Manual LED</h3>
+                    <div class="led-buttons">
+                        <button class="btn-danger" onclick="manualControl('merah')">
+                            🔴 LED Merah
+                        </button>
+                        <button class="btn-warning" onclick="manualControl('kuning')">
+                            🟡 LED Kuning
+                        </button>
+                        <button class="btn-success" onclick="manualControl('hijau')">
+                            🟢 LED Hijau
+                        </button>
+                        <button class="btn-secondary" onclick="manualControl('off')">
+                            ⚫ Matikan Semua
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="instructions">
+                    <h3>📋 Petunjuk Penggunaan</h3>
+                    <ul>
+                        <li>Pastikan Arduino terhubung ke komputer</li>
+                        <li>Klik "Mulai Deteksi Warna" untuk mengaktifkan sistem</li>
+                        <li>Tunjukkan objek berwarna merah, kuning, atau hijau ke kamera</li>
+                        <li>LED di Arduino akan menyala sesuai warna yang terdeteksi</li>
+                        <li>Gunakan kontrol manual untuk menguji LED secara langsung</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Neural Network Animation
+        function initNeuralNetwork() {
+            const canvas = document.getElementById('neural-canvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            const nodes = [];
+            const connections = [];
+            const nodeCount = 50;
+            
+            // Create nodes
+            for (let i = 0; i < nodeCount; i++) {
+                nodes.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    vy: (Math.random() - 0.5) * 0.5,
+                    radius: Math.random() * 3 + 1
+                });
+            }
+            
+            function drawNetwork() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Draw connections
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+                ctx.lineWidth = 1;
+                
+                for (let i = 0; i < nodes.length; i++) {
+                    for (let j = i + 1; j < nodes.length; j++) {
+                        const dist = Math.sqrt(
+                            (nodes[i].x - nodes[j].x) ** 2 + 
+                            (nodes[i].y - nodes[j].y) ** 2
+                        );
+                        
+                        if (dist < 100) {
+                            ctx.beginPath();
+                            ctx.moveTo(nodes[i].x, nodes[i].y);
+                            ctx.lineTo(nodes[j].x, nodes[j].y);
+                            ctx.stroke();
+                        }
+                    }
+                }
+                
+                // Draw nodes
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+                nodes.forEach(node => {
+                    ctx.beginPath();
+                    ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Update position
+                    node.x += node.vx;
+                    node.y += node.vy;
+                    
+                    // Bounce off edges
+                    if (node.x < 0 || node.x > canvas.width) node.vx *= -1;
+                    if (node.y < 0 || node.y > canvas.height) node.vy *= -1;
+                });
+                
+                requestAnimationFrame(drawNetwork);
+            }
+            
+            drawNetwork();
+            
+            // Resize canvas on window resize
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+        }
+        
+        // Initialize floating particles
+        function initParticles() {
+            const particlesContainer = document.getElementById('particles');
+            
+            function createParticle() {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                particlesContainer.appendChild(particle);
+                
+                setTimeout(() => {
+                    particle.remove();
+                }, 25000);
+            }
+            
+            // Create particles periodically
+            setInterval(createParticle, 1000);
+        }
+        
+        // Initialize animations
+        initNeuralNetwork();
+        initParticles();
+        
+        // Update status every second
+        setInterval(updateStatus, 1000);
+        
+        function updateStatus() {
+            fetch('/get_status')
+                .then(response => response.json())
+                .then(data => {
+                    // Update detection status
+                    const detectionStatus = document.getElementById('detection-status');
+                    if (data.is_detecting) {
+                        detectionStatus.textContent = 'Aktif';
+                        detectionStatus.className = 'detection-status detection-active';
+                    } else {
+                        detectionStatus.textContent = 'Tidak Aktif';
+                        detectionStatus.className = 'detection-status detection-inactive';
+                    }
+                    
+                    // Update current color
+                    const currentColor = document.getElementById('current-color');
+                    currentColor.textContent = data.current_color;
+                    
+                    // Update color class
+                    currentColor.className = 'status-value';
+                    if (data.current_color === 'Merah') {
+                        currentColor.classList.add('color-merah');
+                    } else if (data.current_color === 'Kuning') {
+                        currentColor.classList.add('color-kuning');
+                    } else if (data.current_color === 'Hijau') {
+                        currentColor.classList.add('color-hijau');
+                    } else {
+                        currentColor.classList.add('color-none');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating status:', error);
+                });
+        }
+        
+        function startDetection() {
+            fetch('/start_detection')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Detection started:', data);
+                    showNotification('Deteksi warna dimulai!', 'success');
+                })
+                .catch(error => {
+                    console.error('Error starting detection:', error);
+                    showNotification('Error memulai deteksi!', 'error');
+                });
+        }
+        
+        function stopDetection() {
+            fetch('/stop_detection')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Detection stopped:', data);
+                    showNotification('Deteksi warna dihentikan!', 'warning');
+                })
+                .catch(error => {
+                    console.error('Error stopping detection:', error);
+                    showNotification('Error menghentikan deteksi!', 'error');
+                });
+        }
+        
+        function manualControl(color) {
+            fetch(`/manual_control/${color}`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Manual control:', data);
+                    let message = '';
+                    if (color === 'off') {
+                        message = 'Semua LED dimatikan';
+                    } else {
+                        message = `LED ${color} dinyalakan`;
+                    }
+                    showNotification(message, 'info');
+                })
+                .catch(error => {
+                    console.error('Error with manual control:', error);
+                    showNotification('Error mengontrol LED!', 'error');
+                });
+        }
+        
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            
+            // Set background based on type
+            switch(type) {
+                case 'success':
+                    notification.style.background = 'linear-gradient(45deg, #51cf66, #40c057)';
+                    break;
+                case 'error':
+                    notification.style.background = 'linear-gradient(45deg, #ff6b6b, #fa5252)';
+                    break;
+                case 'warning':
+                    notification.style.background = 'linear-gradient(45deg, #ffd93d, #ffc107)';
+                    notification.style.color = '#333';
+                    break;
+                case 'info':
+                    notification.style.background = 'linear-gradient(45deg, #4ecdc4, #45b7d1)';
+                    break;
+                default:
+                    notification.style.background = 'linear-gradient(45deg, #868e96, #6c757d)';
+            }
+            
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            // Remove notification after 3 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideInRight 0.4s reverse';
+                setTimeout(() => notification.remove(), 400);
+            }, 3000);
+        }
+        
+        // Initial status update
+        updateStatus();
+    </script>
+</body>
+</html>
