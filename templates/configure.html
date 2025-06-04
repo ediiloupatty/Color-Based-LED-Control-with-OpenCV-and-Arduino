@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konfigurasi Sistem - Color Detection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .nav-buttons {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        .nav-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            margin: 5px;
+            background: #6c757d;
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-btn:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-btn.active {
+            background: #007bff;
+        }
+
+        .config-content {
+            padding: 40px;
+        }
+
+        .config-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border-left: 5px solid #007bff;
+        }
+
+        .config-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            font-size: 1.5em;
+        }
+
+        .config-section h2 .icon {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+            font-size: 1.1em;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+
+        .form-group small {
+            display: block;
+            margin-top: 5px;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #1e7e34);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107, #e0a800);
+            color: #212529;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .status-connected {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-disconnected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-testing {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .test-results {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: monospace;
+            font-size: 0.9em;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .color-range-editor {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .range-group {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #dee2e6;
+        }
+
+        .range-group h4 {
+            margin-bottom: 10px;
+            color: #495057;
+        }
+
+        .range-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+        }
+
+        .range-inputs input {
+            padding: 8px;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+
+            .config-content {
+                padding: 20px;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .color-range-editor {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>⚙️ Konfigurasi Sistem</h1>
+            <p>Atur pengaturan Arduino, Camera, dan Detection System</p>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav-buttons">
+            <a href="/" class="nav-btn">🏠 Dashboard</a>
+            <a href="/configure" class="nav-btn active">⚙️ Konfigurasi</a>
+        </div>
+
+        <!-- Configuration Content -->
+        <div class="config-content">
+            <!-- Alert Messages -->
+            <div id="alertSuccess" class="alert alert-success"></div>
+            <div id="alertError" class="alert alert-danger"></div>
+            <div id="alertInfo" class="alert alert-info"></div>
+
+            <!-- Arduino Configuration -->
+            <div class="config-section">
+                <h2>
+                    <span class="icon">🔌</span>
+                    Konfigurasi Arduino
+                    <span id="arduinoStatus" class="status-indicator status-disconnected">
+                        ❌ Disconnected
+                    </span>
+                </h2>
+
+                <div class="form-group">
+                    <label for="comPort">Port COM Arduino:</label>
+                    <select id="comPort">
+                        <option value="COM1">COM1</option>
+                        <option value="COM2">COM2</option>
+                        <option value="COM3" selected>COM3</option>
+                        <option value="COM4">COM4</option>
+                        <option value="COM5">COM5</option>
+                        <option value="COM6">COM6</option>
+                        <option value="COM7">COM7</option>
+                        <option value="COM8">COM8</option>
+                    </select>
+                    <small>Pilih port COM dimana Arduino terhubung</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="baudRate">Baud Rate:</label>
+                    <select id="baudRate">
+                        <option value="9600" selected>9600</option>
+                        <option value="19200">19200</option>
+                        <option value="38400">38400</option>
+                        <option value="57600">57600</option>
+                        <option value="115200">115200</option>
+                    </select>
+                    <small>Kecepatan komunikasi serial (biasanya 9600)</small>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="testArduino()">
+                        🔍 Test Koneksi
+                    </button>
+                    <button class="btn btn-success" onclick="saveArduinoConfig()">
+                        💾 Simpan Konfigurasi
+                    </button>
+                    <button class="btn btn-warning" onclick="scanPorts()">
+                        📡 Scan Port
+                    </button>
+                </div>
+
+                <div id="arduinoTestResults" class="test-results" style="display: none;"></div>
+            </div>
+
+            <!-- Camera Configuration -->
+            <div class="config-section">
+                <h2>
+                    <span class="icon">📱</span>
+                    Konfigurasi Camera
+                    <span id="cameraStatus" class="status-indicator status-disconnected">
+                        ❌ Disconnected
+                    </span>
+                </h2>
+
+                <div class="form-group">
+                    <label for="cameraSource">Sumber Camera:</label>
+                    <select id="cameraSource" onchange="toggleCameraSettings()">
+                        <option value="ip">IP Camera (Android)</option>
+                        <option value="local">Local Webcam</option>
+                    </select>
+                </div>
+
+                <div id="ipCameraSettings">
+                    <div class="form-group">
+                        <label for="ipCameraUrl">IP Camera URL:</label>
+                        <input type="text" id="ipCameraUrl" value="http://192.168.1.108:8080/video" placeholder="http://192.168.1.100:8080/video">
+                        <small>Format: http://IP_ADDRESS:PORT/video (dari aplikasi IP Webcam)</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ipAddress">IP Address Android:</label>
+                        <input type="text" id="ipAddress" placeholder="192.168.1.108">
+                        <small>IP Address perangkat Android di network yang sama</small>
+                    </div>
+                </div>
+
+                <div id="localCameraSettings" style="display: none;">
+                    <div class="form-group">
+                        <label for="cameraIndex">Camera Index:</label>
+                        <select id="cameraIndex">
+                            <option value="0">Camera 0</option>
+                            <option value="1" selected>Camera 1</option>
+                            <option value="2">Camera 2</option>
+                        </select>
+                        <small>Index webcam lokal (biasanya 0 atau 1)</small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="resolution">Resolusi Camera:</label>
+                    <select id="resolution">
+                        <option value="640x480" selected>640x480 (VGA)</option>
+                        <option value="800x600">800x600 (SVGA)</option>
+                        <option value="1280x720">1280x720 (HD)</option>
+                        <option value="1920x1080">1920x1080 (Full HD)</option>
+                    </select>
+                    <small>Resolusi lebih tinggi = kualitas lebih baik, tapi loading lebih lambat</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="fps">Frame Rate (FPS):</label>
+                    <select id="fps">
+                        <option value="15">15 FPS</option>
+                        <option value="30" selected>30 FPS</option>
+                        <option value="60">60 FPS</option>
+                    </select>
+                    <small>Frame per detik untuk video streaming</small>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="testCamera()">
+                        🔍 Test Camera
+                    </button>
+                    <button class="btn btn-success" onclick="saveCameraConfig()">
+                        💾 Simpan Konfigurasi
+                    </button>
+                    <button class="btn btn-warning" onclick="generateIpUrl()">
+                        🔗 Generate URL
+                    </button>
+                </div>
+
+                <div id="cameraTestResults" class="test-results" style="display: none;"></div>
+            </div>
+
+            <!-- Color Detection Configuration -->
+            <div class="config-section">
+                <h2>
+                    <span class="icon">🎨</span>
+                    Konfigurasi Color Detection
+                </h2>
+
+                <div class="form-group">
+                    <label for="threshold">Threshold Deteksi:</label>
+                    <input type="range" id="threshold" min="100" max="2000" value="500" oninput="updateThresholdValue()">
+                    <small>Minimum pixel untuk deteksi warna: <span id="thresholdValue">500</span></small>
+                </div>
+
+                <div class="form-group">
+                    <label>Range Warna HSV:</label>
+                    <div class="color-range-editor">
+                        <!-- Red Color Range -->
+                        <div class="range-group">
+                            <h4>🔴 Merah</h4>
+                            <div class="range-inputs">
+                                <input type="number" id="redHMin" value="0" placeholder="H Min">
+                                <input type="number" id="redSMin" value="50" placeholder="S Min">
+                                <input type="number" id="redVMin" value="50" placeholder="V Min">
+                                <input type="number" id="redHMax" value="10" placeholder="H Max">
+                                <input type="number" id="redSMax" value="255" placeholder="S Max">
+                                <input type="number" id="redVMax" value="255" placeholder="V Max">
+                            </div>
+                        </div>
+
+                        <!-- Yellow Color Range -->
+                        <div class="range-group">
+                            <h4>🟡 Kuning</h4>
+                            <div class="range-inputs">
+                                <input type="number" id="yellowHMin" value="20" placeholder="H Min">
+                                <input type="number" id="yellowSMin" value="50" placeholder="S Min">
+                                <input type="number" id="yellowVMin" value="50" placeholder="V Min">
+                                <input type="number" id="yellowHMax" value="30" placeholder="H Max">
+                                <input type="number" id="yellowSMax" value="255" placeholder="S Max">
+                                <input type="number" id="yellowVMax" value="255" placeholder="V Max">
+                            </div>
+                        </div>
+
+                        <!-- Green Color Range -->
+                        <div class="range-group">
+                            <h4>🟢 Hijau</h4>
+                            <div class="range-inputs">
+                                <input type="number" id="greenHMin" value="40" placeholder="H Min">
+                                <input type="number" id="greenSMin" value="50" placeholder="S Min">
+                                <input type="number" id="greenVMin" value="50" placeholder="V Min">
+                                <input type="number" id="greenHMax" value="80" placeholder="H Max">
+                                <input type="number" id="greenSMax" value="255" placeholder="S Max">
+                                <input type="number" id="greenVMax" value="255" placeholder="V Max">
+                            </div>
+                        </div>
+                    </div>
+                    <small>Range HSV untuk setiap warna (H: 0-180, S: 0-255, V: 0-255)</small>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="testColorDetection()">
+                        🎯 Test Detection
+                    </button>
+                    <button class="btn btn-success" onclick="saveColorConfig()">
+                        💾 Simpan Konfigurasi
+                    </button>
+                    <button class="btn btn-warning" onclick="resetColorConfig()">
+                        🔄 Reset Default
+                    </button>
+                </div>
+            </div>
+
+            <!-- System Configuration -->
+            <div class="config-section">
+                <h2>
+                    <span class="icon">🖥️</span>
+                    Konfigurasi Sistem
+                </h2>
+
+                <div class="form-group">
+                    <label for="serverPort">Port Web Server:</label>
+                    <input type="number" id="serverPort" value="5000" min="1000" max="9999">
+                    <small>Port untuk mengakses web interface (default: 5000)</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="serverHost">Host Address:</label>
+                    <select id="serverHost">
+                        <option value="localhost">localhost (hanya lokal)</option>
+                        <option value="0.0.0.0" selected>0.0.0.0 (akses network)</option>
+                    </select>
+                    <small>Pilih 0.0.0.0 untuk akses dari perangkat lain di network</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="debugMode">Debug Mode:</label>
+                    <select id="debugMode">
+                        <option value="false" selected>Disabled</option>
+                        <option value="true">Enabled</option>
+                    </select>
+                    <small>Enable untuk debugging dan logging detail</small>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-success" onclick="saveSystemConfig()">
+                        💾 Simpan Konfigurasi
+                    </button>
+                    <button class="btn btn-danger" onclick="restartSystem()">
+                        🔄 Restart System
+                    </button>
+                    <button class="btn btn-warning" onclick="exportConfig()">
+                        📤 Export Config
+                    </button>
+                    <button class="btn btn-primary" onclick="importConfig()">
+                        📤 Import Config
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div id="loadingIndicator" class="loading">
+                <div class="spinner"></div>
+                <p>Memproses konfigurasi...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentConfig = {
+            arduino: {
+                port: 'COM3',
+                baudRate: 9600
+            },
+            camera: {
+                source: 'ip',
+                ipUrl: 'http://192.168.1.108:8080/video',
+                localIndex: 1,
+                resolution: '640x480',
+                fps: 30
+            },
+            detection: {
+                threshold: 500,
+                colors: {
+                    red: { hMin: 0, sMin: 50, vMin: 50, hMax: 10, sMax: 255, vMax: 255 },
+                    yellow: { hMin: 20, sMin: 50, vMin: 50, hMax: 30, sMax: 255, vMax: 255 },
+                    green: { hMin: 40, sMin: 50, vMin: 50, hMax: 80, sMax: 255, vMax: 255 }
+                }
+            },
+            system: {
+                port: 5000,
+                host: '0.0.0.0',
+                debug: false
+            }
+        };
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCurrentConfig();
+            checkSystemStatus();
+        });
+
+        // Toggle camera settings based on source
+        function toggleCameraSettings() {
+            const source = document.getElementById('cameraSource').value;
+            const ipSettings = document.getElementById('ipCameraSettings');
+            const localSettings = document.getElementById('localCameraSettings');
+            
+            if (source === 'ip') {
+                ipSettings.style.display = 'block';
+                localSettings.style.display = 'none';
+            } else {
+                ipSettings.style.display = 'none';
+                localSettings.style.display = 'block';
+            }
+        }
+
+        // Update threshold value display
+        function updateThresholdValue() {
+            const threshold = document.getElementById('threshold').value;
+            document.getElementById('thresholdValue').textContent = threshold;
+        }
+
+        // Generate IP Camera URL
+        function generateIpUrl() {
+            const ipAddress = document.getElementById('ipAddress').value;
+            if (ipAddress) {
+                const url = `http://${ipAddress}:8080/video`;
+                document.getElementById('ipCameraUrl').value = url;
+                showAlert('success', `URL Generated: ${url}`);
+            } else {
+                showAlert('error', 'Masukkan IP Address terlebih dahulu!');
+            }
+        }
+
+        // Test Arduino connection
+        async function testArduino() {
+            showLoading(true);
+            const port = document.getElementById('comPort').value;
+            const baudRate = document.getElementById('baudRate').value;
+            
+            try {
+                const response = await fetch('/api/test_arduino', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ port, baudRate })
+                });
+                
+                const result = await response.json();
+                
+                const testResults = document.getElementById('arduinoTestResults');
+                testResults.style.display = 'block';
+                testResults.innerHTML = `
+                    <strong>Test Results:</strong><br>
+                    Port: ${port}<br>
+                    Status: ${result.success ? '✅ Connected' : '❌ Failed'}<br>
+                    Message: ${result.message}<br>
+                    Time: ${new Date().toLocaleTimeString()}
+                `;
+                
+                if (result.success) {
+                    updateStatus('arduino', 'connected');
+                    showAlert('success', 'Arduino connected successfully!');
+                } else {
+                    updateStatus('arduino', 'disconnected');
+                    showAlert('error', `Arduino connection failed: ${result.message}`);
+                }
+            } catch (error) {
+                showAlert('error', `Error testing Arduino: ${error.message}`);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Test Camera connection
+        async function testCamera() {
+            showLoading(true);
+            const source = document.getElementById('cameraSource').value;
+            const config = source === 'ip' ? 
+                { type: 'ip', url: document.getElementById('ipCameraUrl').value } :
+                { type: 'local', index: parseInt(document.getElementById('cameraIndex').value) };
+            
+            try {
+                const response = await fetch('/api/test_camera', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(config)
+                });
+                
+                const result = await response.json();
+                
+                const testResults = document.getElementById('cameraTestResults');
+                testResults.style.display = 'block';
+                testResults.innerHTML = `
+                    <strong>Test Results:</strong><br>
+                    Source: ${source === 'ip' ? 'IP Camera' : 'Local Webcam'}<br>
+                    ${source === 'ip' ? `URL: ${config.url}` : `Index: ${config.index}`}<br>
+                    Status: ${result.success ? '✅ Connected' : '❌ Failed'}<br>
+                    Message: ${result.message}<br>
+                    Time: ${new Date().toLocaleTimeString()}
+                `;
+                
+                if (result.success) {
+                    updateStatus('camera', 'connected');
+                    showAlert('success', 'Camera connected successfully!');
+                } else {
+                    updateStatus('camera', 'disconnected');
+                    showAlert('error', `Camera connection failed: ${result.message}`);
+                }
+            } catch (error) {
+                showAlert('error', `Error testing camera: ${error.message}`);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Scan COM ports
+        async function scanPorts() {
+            showLoading(true);
+            try {
+                const response = await fetch('/api/scan_ports');
+                const result = await response.json();
+                
+                const comPortSelect = document.getElementById('comPort');
+                comPortSelect.innerHTML = '';
+                
+                if (result.ports && result.ports.length > 0) {
+                    result.ports.forEach(port => {
+                        const option = document.createElement('option');
+                        option.value = port;
+                        option.textContent = port;
+                        comPortSelect.appendChild(option);
+                    });
+                    showAlert('success', `Found ${result.ports.length} available ports`);
+                } else {
+                    showAlert('error', 'No COM ports found');
+                }
+            } catch (error) {
+                showAlert('error', `Error scanning ports: ${error.message}`);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Save configurations
+        async function saveArduinoConfig() {
+            const config = {
+                port: document.getElementById('comPort').value,
+                baudRate: parseInt(document.getElementById('baudRate').value)
+            };
+            
+            await saveConfig('arduino', config);
+        }
+
+        async function saveCameraConfig() {
+            const source = document.getElementById('cameraSource').value;
+            const config = {
+                source: source,
+                ipUrl: document.getElementById('ipCameraUrl').value,
+                localIndex: parseInt(document.getElementById('cameraIndex').value),
+                resolution: document.getElementById('resolution').value,
+                fps: parseInt(document.getElementById('fps').value)
+            };
+            
+            await saveConfig('camera', config);
+        }
+
+        async function saveColorConfig() {
+            const config = {
+                threshold: parseInt(document.getElementById('threshold').value),
+                colors: {
+                    red: {
+                        hMin: parseInt(document.getElementById('redHMin').value),
+                        sMin: parseInt(document.getElementById('redSMin').value),
+                        vMin: parseInt(document.getElementById('redVMin').value),
+                        hMax: parseInt(document.getElementById('redHMax').value),
+                        sMax: parseInt(document.getElementById('redSMax').value),
+                        vMax: parseInt(document.getElementById('redVMax').value)
+                    },
+                    yellow: {
+                        hMin: parseInt(document.getElementById('yellowHMin').value),
+                        sMin: parseInt(document.getElementById('yellowSMin').value),
+                        vMin: parseInt(document.getElementById('yellowVMin').value),
+                        hMax: parseInt(document.getElementById('yellowHMax').value),
+                        sMax: parseInt(document.getElementById('yellowSMax').value),
+                        vMax: parseInt(document.getElementById('yellowVMax').value)
+                    },
+                    green: {
+                        hMin: parseInt(document.getElementById('greenHMin').value),
+                        sMin: parseInt(document.getElementById('greenSMin').value),
+                        vMin: parseInt(document.getElementById('greenVMin').value),
+                        hMax: parseInt(document.getElementById('greenHMax').value),
+                        sMax: parseInt(document.getElementById('greenSMax').value),
+                        vMax: parseInt(document.getElementById('greenVMax').value)
+                    }
+                }
+            };
+            
+            await saveConfig('detection', config);
+        }
+
+        async function saveSystemConfig() {
+            const config = {
+                port: parseInt(document.getElementById('serverPort').value),
+                host: document.getElementById('serverHost').value,
+                debug: document.getElementById('debugMode').value === 'true'
+            };
+            
+            await saveConfig('system', config);
+        }
+
+        // Generic save config function
+        async function saveConfig(section, config) {
+            showLoading(true);
+            try {
+                const response = await fetch('/api/save_config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ section, config })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    currentConfig[section] = config;
+                    showAlert('success', `${section} configuration saved successfully!`);
+                } else {
+                    showAlert('error', `Failed to save ${section} configuration: ${result.message}`);
+                }
+            } catch (error) {
+                showAlert('error', `Error saving ${section} configuration: ${error.message}`);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Load current configuration
+        async function loadCurrentConfig() {
+            try {
+                const response = await fetch('/api/get_config');
+                const config = await response.json();
+                
+                if (config.success) {
+                    currentConfig = config.data;
+                    populateConfigForm();
+                }
+            } catch (error) {
+                console.error('Error loading configuration:', error);
+                showAlert('info', 'Using default configuration');
+            }
+        }
+
+        // Populate form with current config
+        function populateConfigForm() {
+            // Arduino
+            document.getElementById('comPort').value = currentConfig.arduino.port;
+            document.getElementById('baudRate').value = currentConfig.arduino.baudRate;
+            
+            // Camera
+            document.getElementById('cameraSource').value = currentConfig.camera.source;
+            document.getElementById('ipCameraUrl').value = currentConfig.camera.ipUrl;
+            document.getElementById('cameraIndex').value = currentConfig.camera.localIndex;
+            document.getElementById('resolution').value = currentConfig.camera.resolution;
+            document.getElementById('fps').value = currentConfig.camera.fps;
+            
+            // Detection
+            document.getElementById('threshold').value = currentConfig.detection.threshold;
+            updateThresholdValue();
+            
+            // Color ranges
+            const colors = currentConfig.detection.colors;
+            ['red', 'yellow', 'green'].forEach(color => {
+                document.getElementById(`${color}HMin`).value = colors[color].hMin;
+                document.getElementById(`${color}SMin`).value = colors[color].sMin;
+                document.getElementById(`${color}VMin`).value = colors[color].vMin;
+                document.getElementById(`${color}HMax`).value = colors[color].hMax;
+                document.getElementById(`${color}SMax`).value = colors[color].sMax;
+                document.getElementById(`${color}VMax`).value = colors[color].vMax;
+            });
+            
+            // System
+            document.getElementById('serverPort').value = currentConfig.system.port;
+            document.getElementById('serverHost').value = currentConfig.system.host;
+            document.getElementById('debugMode').value = currentConfig.system.debug.toString();
+            
+            // Update camera settings visibility
+            toggleCameraSettings();
+        }
+
+        // Check system status
+        async function checkSystemStatus() {
+            try {
+                const response = await fetch('/api/system_status');
+                const status = await response.json();
+                
+                updateStatus('arduino', status.arduino ? 'connected' : 'disconnected');
+                updateStatus('camera', status.camera ? 'connected' : 'disconnected');
+            } catch (error) {
+                console.error('Error checking system status:', error);
+            }
+        }
+
+        // Update status indicators
+        function updateStatus(component, status) {
+            const statusElement = document.getElementById(`${component}Status`);
+            
+            statusElement.className = `status-indicator status-${status}`;
+            
+            if (status === 'connected') {
+                statusElement.innerHTML = '✅ Connected';
+            } else if (status === 'testing') {
+                statusElement.innerHTML = '🔄 Testing...';
+            } else {
+                statusElement.innerHTML = '❌ Disconnected';
+            }
+        }
+
+        // Test color detection
+        async function testColorDetection() {
+            showLoading(true);
+            try {
+                const config = {
+                    threshold: parseInt(document.getElementById('threshold').value),
+                    colors: {
+                        red: {
+                            hMin: parseInt(document.getElementById('redHMin').value),
+                            sMin: parseInt(document.getElementById('redSMin').value),
+                            vMin: parseInt(document.getElementById('redVMin').value),
+                            hMax: parseInt(document.getElementById('redHMax').value),
+                            sMax: parseInt(document.getElementById('redSMax').value),
+                            vMax: parseInt(document.getElementById('redVMax').value)
+                        },
+                        yellow: {
+                            hMin: parseInt(document.getElementById('yellowHMin').value),
+                            sMin: parseInt(document.getElementById('yellowSMin').value),
+                            vMin: parseInt(document.getElementById('yellowVMin').value),
+                            hMax: parseInt(document.getElementById('yellowHMax').value),
+                            sMax: parseInt(document.getElementById('yellowSMax').value),
+                            vMax: parseInt(document.getElementById('yellowVMax').value)
+                        },
+                        green: {
+                            hMin: parseInt(document.getElementById('greenHMin').value),
+                            sMin: parseInt(document.getElementById('greenSMin').value),
+                            vMin: parseInt(document.getElementById('greenVMin').value),
+                            hMax: parseInt(document.getElementById('greenHMax').value),
+                            sMax: parseInt(document.getElementById('greenSMax').value),
+                            vMax: parseInt(document.getElementById('greenVMax').value)
+                        }
+                    }
+                };
+                
+                const response = await fetch('/api/test_detection', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(config)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert('success', 'Color detection test completed successfully!');
+                } else {
+                    showAlert('error', `Color detection test failed: ${result.message}`);
+                }
+            } catch (error) {
+                showAlert('error', `Error testing color detection: ${error.message}`);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Reset color configuration to default
+        function resetColorConfig() {
+            if (confirm('Reset color configuration to default values?')) {
+                // Reset to default values
+                document.getElementById('threshold').value = 500;
+                updateThresholdValue();
+                
+                // Red
+                document.getElementById('redHMin').value = 0;
+                document.getElementById('redSMin').value = 50;
+                document.getElementById('redVMin').value = 50;
+                document.getElementById('redHMax').value = 10;
+                document.getElementById('redSMax').value = 255;
+                document.getElementById('redVMax').value = 255;
+                
+                // Yellow
+                document.getElementById('yellowHMin').value = 20;
+                document.getElementById('yellowSMin').value = 50;
+                document.getElementById('yellowVMin').value = 50;
+                document.getElementById('yellowHMax').value = 30;
+                document.getElementById('yellowSMax').value = 255;
+                document.getElementById('yellowVMax').value = 255;
+                
+                // Green
+                document.getElementById('greenHMin').value = 40;
+                document.getElementById('greenSMin').value = 50;
+                document.getElementById('greenVMin').value = 50;
+                document.getElementById('greenHMax').value = 80;
+                document.getElementById('greenSMax').value = 255;
+                document.getElementById('greenVMax').value = 255;
+                
+                showAlert('success', 'Color configuration reset to default values');
+            }
+        }
+
+        // Restart system
+        async function restartSystem() {
+            if (confirm('Restart the entire system? This will stop all current operations.')) {
+                showLoading(true);
+                try {
+                    const response = await fetch('/api/restart_system', {
+                        method: 'POST'
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        showAlert('success', 'System restart initiated. Please wait...');
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 5000);
+                    } else {
+                        showAlert('error', `Failed to restart system: ${result.message}`);
+                    }
+                } catch (error) {
+                    showAlert('error', `Error restarting system: ${error.message}`);
+                } finally {
+                    showLoading(false);
+                }
+            }
+        }
+
+        // Export configuration
+        function exportConfig() {
+            const configData = {
+                timestamp: new Date().toISOString(),
+                version: '1.0',
+                config: currentConfig
+            };
+            
+            const dataStr = JSON.stringify(configData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `color-detection-config-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            
+            showAlert('success', 'Configuration exported successfully!');
+        }
+
+        // Import configuration
+        function importConfig() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            const importedConfig = JSON.parse(e.target.result);
+                            
+                            if (importedConfig.config) {
+                                currentConfig = importedConfig.config;
+                                populateConfigForm();
+                                showAlert('success', 'Configuration imported successfully!');
+                            } else {
+                                showAlert('error', 'Invalid configuration file format');
+                            }
+                        } catch (error) {
+                            showAlert('error', `Error importing configuration: ${error.message}`);
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            };
+            input.click();
+        }
+
+        // Utility functions
+        function showAlert(type, message) {
+            const alertElement = document.getElementById(`alert${type.charAt(0).toUpperCase() + type.slice(1)}`);
+            if (alertElement) {
+                alertElement.textContent = message;
+                alertElement.style.display = 'block';
+                
+                setTimeout(() => {
+                    alertElement.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        function showLoading(show) {
+            const loadingElement = document.getElementById('loadingIndicator');
+            loadingElement.style.display = show ? 'block' : 'none';
+        }
+
+        // Auto-refresh status every 30 seconds
+        setInterval(checkSystemStatus, 30000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+{
+  "arduino": {
+    "port": "COM3",
+    "baudRate": 9600
+  },
+  "camera": {
+    "source": "ip",
+    "ipUrl": "http://192.168.1.108:8080/video",
+    "localIndex": 1,
+    "resolution": "640x480",
+    "fps": 30
+  },
+  "detection": {
+    "threshold": 500,
+    "colors": {
+      "red": {
+        "hMin": 0,
+        "sMin": 50,
+        "vMin": 50,
+        "hMax": 10,
+        "sMax": 255,
+        "vMax": 255
+      },
+      "yellow": {
+        "hMin": 20,
+        "sMin": 50,
+        "vMin": 50,
+        "hMax": 30,
+        "sMax": 255,
+        "vMax": 255
+      },
+      "green": {
+        "hMin": 40,
+        "sMin": 50,
+        "vMin": 50,
+        "hMax": 80,
+        "sMax": 255,
+        "vMax": 255
+      }
+    }
+  },
+  "system": {
+    "port": 5000,
+    "host": "0.0.0.0",
+    "debug": false
+  }
+}

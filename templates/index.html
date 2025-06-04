@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Deteksi Warna & Kontrol LED Arduino</title>
+    <title>Sistem Deteksi Warna & Akuisisi Citra Arduino</title>
     <style>
-        * {
+                * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -15,11 +15,10 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            overflow-x: hidden;
             position: relative;
         }
 
-        /* Neural Network Background Animation */
+        /* Neural Network Background */
         .neural-bg {
             position: fixed;
             top: 0;
@@ -28,49 +27,12 @@
             height: 100%;
             pointer-events: none;
             z-index: 0;
-            opacity: 0.1;
+            opacity: 0.15;
         }
 
         .neural-bg canvas {
             width: 100%;
             height: 100%;
-        }
-
-        /* Floating particles */
-        .particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        .particle {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.6);
-            border-radius: 50%;
-            animation: float 15s infinite linear;
-        }
-
-        @keyframes float {
-            0% {
-                transform: translateY(100vh) rotate(0deg);
-                opacity: 0;
-            }
-            10% {
-                opacity: 1;
-            }
-            90% {
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(-100vh) rotate(360deg);
-                opacity: 0;
-            }
         }
 
         .container {
@@ -81,138 +43,138 @@
             z-index: 2;
         }
 
-        /* Glassmorphism header */
+        /* Header */
         .header {
             background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            padding: 30px;
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
             text-align: center;
-            margin-bottom: 30px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .header h1 {
             color: white;
-            font-size: 2.5rem;
-            font-weight: 700;
-            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            background: linear-gradient(45deg, #ff6b6b, #ffd93d, #6bcf7f);
-            background-size: 200% 200%;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: gradientShift 3s ease infinite;
-        }
-
-        @keyframes gradientShift {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
+            font-size: 2rem;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .main-content {
             display: grid;
             grid-template-columns: 2fr 1fr;
-            gap: 30px;
+            gap: 20px;
             align-items: start;
         }
 
-        /* Video section with advanced styling */
+        /* Video Section */
         .video-section {
             background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
+            backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 25px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .video-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcf7f, #4ecdc4, #45b7d1);
-            background-size: 200% 100%;
-            animation: rainbow 3s linear infinite;
-        }
-
-        @keyframes rainbow {
-            0% { background-position: 0% 50%; }
-            100% { background-position: 200% 50%; }
+            border-radius: 15px;
+            padding: 20px;
         }
 
         .video-container {
             position: relative;
-            margin-bottom: 25px;
-            border-radius: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
         }
 
         #video-stream {
             width: 100%;
             height: auto;
             display: block;
-            border-radius: 20px;
-            transition: transform 0.3s ease;
+            border-radius: 10px;
         }
 
-        #video-stream:hover {
-            transform: scale(1.02);
+        /* Detection Frame */
+        .detection-frame {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 150px;
+            height: 150px;
+            border: 3px solid #4ecdc4;
+            border-radius: 10px;
+            transform: translate(-50%, -50%);
+            animation: frameGlow 2s infinite alternate;
+            pointer-events: none;
         }
 
-        /* Control buttons with neon effect */
+        .detection-frame::before {
+            content: 'Area Deteksi';
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(78, 205, 196, 0.9);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        @keyframes frameGlow {
+            0% {
+                border-color: #4ecdc4;
+                box-shadow: 0 0 10px rgba(78, 205, 196, 0.5);
+            }
+            100% {
+                border-color: #45b7d1;
+                box-shadow: 0 0 20px rgba(69, 183, 209, 0.8);
+            }
+        }
+
+        /* Control Buttons */
         .control-buttons {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .acquisition-controls {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 10px;
+            align-items: center;
         }
 
         .control-section {
             display: flex;
             flex-direction: column;
-            gap: 25px;
+            gap: 20px;
         }
 
-        /* Status panel with advanced styling */
+        /* Status Panel */
         .status-panel {
             background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
+            backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 25px;
-            padding: 25px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            position: relative;
+            border-radius: 15px;
+            padding: 20px;
         }
 
         .status-panel h3 {
             color: white;
-            font-size: 1.3rem;
-            margin-bottom: 20px;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
             text-align: center;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .status-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-            padding: 15px;
+            margin-bottom: 10px;
+            padding: 10px;
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-        }
-
-        .status-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
         }
 
         .status-item span:first-child {
@@ -222,156 +184,207 @@
 
         .status-value {
             font-weight: bold;
-            padding: 8px 16px;
-            border-radius: 20px;
+            padding: 5px 12px;
+            border-radius: 15px;
             font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        }
+
+        /* Status Colors */
+        .color-merah { 
+            background: #ff6b6b;
+            color: white;
+        }
+        .color-kuning { 
+            background: #ffd93d;
+            color: #333;
+        }
+        .color-hijau { 
+            background: #6bcf7f;
+            color: white;
+        }
+        .color-none { 
+            background: #868e96;
+            color: white;
+        }
+
+        /* Buttons */
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-success { background: #51cf66; }
+        .btn-danger { background: #ff6b6b; }
+        .btn-warning { background: #ffd93d; color: #333; }
+        .btn-secondary { background: #868e96; }
+        .btn-info { background: #4ecdc4; }
+
+        .btn-capture {
+            background: linear-gradient(45deg, #667eea, #764ba2);
             position: relative;
             overflow: hidden;
         }
 
-        .status-value::before {
+        .btn-capture::before {
             content: '';
             position: absolute;
             top: 0;
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
             transition: left 0.5s;
         }
 
-        .status-value:hover::before {
+        .btn-capture:hover::before {
             left: 100%;
         }
 
-        .color-merah { 
-            background: linear-gradient(45deg, #ff6b6b, #ee5a5a);
-            color: white;
-            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
-        }
-        .color-kuning { 
-            background: linear-gradient(45deg, #ffd93d, #ffc107);
-            color: #333;
-            box-shadow: 0 4px 15px rgba(255, 217, 61, 0.4);
-        }
-        .color-hijau { 
-            background: linear-gradient(45deg, #6bcf7f, #51cf66);
-            color: white;
-            box-shadow: 0 4px 15px rgba(107, 207, 127, 0.4);
-        }
-        .color-none { 
-            background: linear-gradient(45deg, #868e96, #6c757d);
-            color: white;
-            box-shadow: 0 4px 15px rgba(134, 142, 150, 0.4);
-        }
-
-        /* Modern buttons */
-        button {
-            padding: 15px 25px;
-            border: none;
-            border-radius: 20px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        /* Acquisition Section */
+        .acquisition-section {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            padding: 20px;
         }
 
-        button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
+        .acquisition-section h3 {
+            color: white;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .capture-preview {
+            width: 100%;
+            max-width: 300px;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            margin: 15px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .capture-preview img {
             width: 100%;
             height: 100%;
-            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-            transform: translateX(-100%);
-            transition: transform 0.6s;
+            object-fit: cover;
+            border-radius: 10px;
         }
 
-        button:hover::before {
-            transform: translateX(100%);
+        .capture-placeholder {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+            text-align: center;
         }
 
-        button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        .capture-info {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.9);
         }
 
-        button:active {
-            transform: translateY(-1px);
+        .capture-timestamp {
+            font-weight: bold;
+            color: #4ecdc4;
         }
 
-        .btn-success {
-            background: linear-gradient(45deg, #51cf66, #40c057);
-            box-shadow: 0 8px 25px rgba(81, 207, 102, 0.3);
+        .capture-settings {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
         }
 
-        .btn-danger {
-            background: linear-gradient(45deg, #ff6b6b, #fa5252);
-            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+        .setting-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
         }
 
-        .btn-warning {
-            background: linear-gradient(45deg, #ffd93d, #ffc107);
-            color: #333;
-            box-shadow: 0 8px 25px rgba(255, 217, 61, 0.3);
+        .setting-item label {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 12px;
+            font-weight: 500;
         }
 
-        .btn-secondary {
-            background: linear-gradient(45deg, #868e96, #6c757d);
-            box-shadow: 0 8px 25px rgba(134, 142, 150, 0.3);
+        .setting-item select, .setting-item input {
+            padding: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 12px;
         }
 
-        /* Manual control section */
+        .setting-item select option {
+            background: #333;
+            color: white;
+        }
+
+        /* Manual Control Section */
         .manual-control {
             background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
+            backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 25px;
-            padding: 25px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            padding: 20px;
         }
 
         .manual-control h3 {
             color: white;
-            font-size: 1.3rem;
-            margin-bottom: 20px;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
             text-align: center;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .led-buttons {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            gap: 10px;
         }
 
-        /* Instructions with modern styling */
+        /* Instructions */
         .instructions {
             background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
+            backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 25px;
-            padding: 25px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            padding: 20px;
         }
 
         .instructions h3 {
             color: white;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             margin-bottom: 15px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .instructions ul {
@@ -381,104 +394,502 @@
 
         .instructions li {
             color: rgba(255, 255, 255, 0.9);
-            margin-bottom: 10px;
-            padding: 10px 15px;
+            margin-bottom: 8px;
+            padding: 8px 12px;
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            backdrop-filter: blur(5px);
+            border-radius: 8px;
             border-left: 3px solid #4ecdc4;
-            transition: all 0.3s ease;
-        }
-
-        .instructions li:hover {
-            transform: translateX(5px);
-            background: rgba(255, 255, 255, 0.15);
         }
 
         .instructions li::before {
             content: '▶';
             color: #4ecdc4;
-            margin-right: 10px;
-            font-weight: bold;
+            margin-right: 8px;
         }
 
+        /* Detection Status */
         .detection-status {
             display: inline-block;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 14px;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
             font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            position: relative;
-            overflow: hidden;
         }
 
         .detection-active {
-            background: linear-gradient(45deg, #51cf66, #40c057);
+            background: #51cf66;
             color: white;
-            box-shadow: 0 4px 15px rgba(81, 207, 102, 0.4);
             animation: pulse 2s infinite;
         }
 
         .detection-inactive {
-            background: linear-gradient(45deg, #ff6b6b, #fa5252);
+            background: #ff6b6b;
             color: white;
-            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
         }
 
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+        /* Image Gallery */
+        .image-gallery {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
         }
 
-        /* Responsive design */
-        @media (max-width: 1024px) {
-            .main-content {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-            
-            .header h1 {
-                font-size: 2rem;
-            }
+        .image-gallery h3 {
+            color: white;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            text-align: center;
         }
 
-        @media (max-width: 768px) {
-            .container {
-                padding: 15px;
-            }
-            
-            .control-buttons {
-                grid-template-columns: 1fr;
-            }
-            
-            .led-buttons {
-                grid-template-columns: 1fr;
-            }
-            
-            .header h1 {
-                font-size: 1.8rem;
-            }
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            max-height: 300px;
+            overflow-y: auto;
         }
 
-        /* Notification styles */
+        .gallery-item {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-item:hover {
+            transform: scale(1.05);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .gallery-item .item-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            color: white;
+            padding: 5px;
+            font-size: 10px;
+            text-align: center;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 10px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 40px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* Image Processing Overlay */
+        .image-processing-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .processing-info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .processing-step {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 8px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            font-size: 11px;
+            color: white;
+            transition: all 0.3s ease;
+            opacity: 0.6;
+        }
+
+        .processing-step.active {
+            opacity: 1;
+            background: rgba(78, 205, 196, 0.8);
+            transform: scale(1.05);
+        }
+
+        .processing-step.processing {
+            animation: processFlow 1.5s ease-in-out;
+        }
+
+        .step-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .processing-step.active .step-number {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+        }
+
+        /* ROI Indicator */
+        .roi-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 150px;
+            height: 150px;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .roi-corners {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .corner {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #4ecdc4;
+        }
+
+        .corner.top-left {
+            top: 0;
+            left: 0;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .corner.top-right {
+            top: 0;
+            right: 0;
+            border-left: none;
+            border-bottom: none;
+        }
+
+        .corner.bottom-left {
+            bottom: 0;
+            left: 0;
+            border-right: none;
+            border-top: none;
+        }
+
+        .corner.bottom-right {
+            bottom: 0;
+            right: 0;
+            border-left: none;
+            border-top: none;
+        }
+
+        .roi-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .crosshair {
+            position: absolute;
+            background: rgba(78, 205, 196, 0.6);
+        }
+
+        .crosshair.horizontal {
+            width: 30px;
+            height: 1px;
+            top: 0;
+            left: -15px;
+        }
+
+        .crosshair.vertical {
+            width: 1px;
+            height: 30px;
+            top: -15px;
+            left: 0;
+        }
+
+        /* Histogram Preview */
+        .histogram-preview {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 8px;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .histogram-label {
+            color: white;
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+        #histogram-canvas {
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Statistics Panel */
+        .statistics-panel {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+            padding: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(78, 205, 196, 0.3);
+            min-width: 200px;
+            font-size: 11px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .statistics-panel.minimized .statistics-content {
+            display: none;
+        }
+
+        .statistics-panel.minimized {
+            min-width: auto;
+            padding: 8px;
+        }
+
+        .statistics-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid rgba(78, 205, 196, 0.3);
+        }
+
+        .statistics-title {
+            font-weight: bold;
+            color: #4ecdc4;
+            font-size: 12px;
+        }
+
+        .statistics-toggle {
+            background: none;
+            border: none;
+            color: #4ecdc4;
+            cursor: pointer;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            transition: background 0.3s;
+        }
+
+        .statistics-toggle:hover {
+            background: rgba(78, 205, 196, 0.2);
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 3px 0;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 10px;
+        }
+
+        .stat-value {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 10px;
+        }
+
+        .stat-rgb { color: #ff6b6b; }
+        .stat-std { color: #ffd93d; }
+        .stat-percentile { color: #6bcf7f; }
+        .stat-brightness { color: #4ecdc4; }
+        .stat-contrast { color: #d946ef; }
+
+        .percentile-group {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+            padding: 5px;
+            margin: 2px 0;
+        }
+
+        .percentile-title {
+            font-size: 9px;
+            color: #6bcf7f;
+            margin-bottom: 3px;
+            text-align: center;
+        }
+
+        .percentile-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 5px;
+            font-size: 9px;
+        }
+
+        .percentile-item {
+            text-align: center;
+            padding: 2px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* RGB Channel Bars */
+        .rgb-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            margin: 5px 0;
+        }
+
+        .rgb-bar {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .rgb-label {
+            font-size: 9px;
+            width: 15px;
+            font-weight: bold;
+        }
+
+        .rgb-r { color: #ff6b6b; }
+        .rgb-g { color: #6bcf7f; }
+        .rgb-b { color: #45b7d1; }
+
+        .rgb-progress {
+            flex: 1;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .rgb-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        .rgb-fill.r { background: linear-gradient(90deg, #ff6b6b, #ff9999); }
+        .rgb-fill.g { background: linear-gradient(90deg, #6bcf7f, #99e6ac); }
+        .rgb-fill.b { background: linear-gradient(90deg, #45b7d1, #78c9e6); }
+
+        .rgb-value {
+            font-family: 'Courier New', monospace;
+            font-size: 9px;
+            width: 25px;
+            text-align: right;
+        }
+
+        /* Live Indicator */
+        .live-indicator {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: #51cf66;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+            margin-left: 5px;
+        }
+
+        /* Notification */
         .notification {
             position: fixed;
             top: 20px;
             right: 20px;
-            padding: 15px 25px;
-            border-radius: 15px;
+            padding: 12px 20px;
+            border-radius: 10px;
             color: white;
             font-weight: 600;
             z-index: 1000;
-            backdrop-filter: blur(20px);
+            backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: slideIn 0.3s ease;
         }
 
-        @keyframes slideInRight {
+        /* Flash Overlay */
+        .flash-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .flash-overlay.active {
+            animation: cameraFlash 0.3s ease;
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0%, 100% { 
+                opacity: 1; 
+                transform: scale(1); 
+            }
+            50% { 
+                opacity: 0.5; 
+                transform: scale(0.8); 
+            }
+        }
+
+        @keyframes slideIn {
             from {
                 transform: translateX(100%);
                 opacity: 0;
@@ -488,35 +899,606 @@
                 opacity: 1;
             }
         }
+
+        @keyframes cameraFlash {
+            0% { opacity: 0; }
+            50% { opacity: 0.8; }
+            100% { opacity: 0; }
+        }
+
+        @keyframes processFlow {
+            0% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+            100% { opacity: 0.6; transform: scale(1); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .control-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .acquisition-controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .led-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .detection-frame {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .capture-settings {
+                grid-template-columns: 1fr;
+            }
+            
+            .processing-info {
+                top: 5px;
+                left: 5px;
+                gap: 3px;
+            }
+            
+            .processing-step {
+                padding: 3px 6px;
+                font-size: 10px;
+            }
+            
+            .step-number {
+                width: 14px;
+                height: 14px;
+                font-size: 9px;
+            }
+            
+            .roi-indicator {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .corner {
+                width: 15px;
+                height: 15px;
+            }
+            
+            .histogram-preview {
+                bottom: 5px;
+                right: 5px;
+                padding: 6px;
+            }
+            
+            #histogram-canvas {
+                width: 80px;
+                height: 30px;
+            }
+            
+            .statistics-panel {
+                top: 5px;
+                right: 5px;
+                padding: 8px;
+                min-width: 160px;
+                font-size: 10px;
+            }
+            
+            .statistics-title {
+                font-size: 11px;
+            }
+            
+            .stat-label, .stat-value {
+                font-size: 9px;
+            }
+            
+            .percentile-row {
+                font-size: 8px;
+            }
+        }
+        /* Image Representation Section */
+        .image-representation {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        /* Image Representation Section - Improved */
+        .image-representation {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .image-representation:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .image-representation h3 {
+            color: white;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .representation-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .representation-placeholder {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.4) 100%);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 16px;
+            text-align: center;
+            border: 2px dashed rgba(78, 205, 196, 0.4);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .representation-placeholder:hover {
+            border-color: rgba(78, 205, 196, 0.6);
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.3) 100%);
+        }
+
+        .representation-placeholder::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(78, 205, 196, 0.1), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        .representation-placeholder .placeholder-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+            opacity: 0.6;
+        }
+
+        .representation-placeholder .placeholder-text {
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .representation-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        .representation-options button {
+            padding: 12px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .representation-options button:hover {
+            transform: translateY(-2px);
+            background: rgba(78, 205, 196, 0.2);
+            border-color: rgba(78, 205, 196, 0.4);
+            box-shadow: 0 8px 25px rgba(78, 205, 196, 0.2);
+        }
+
+        .representation-options button:active {
+            transform: translateY(0);
+        }
+
+        .representation-options button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .representation-options button:hover::before {
+            left: 100%;
+        }
+
+        /* Special button styles for different functions */
+        .representation-options button:nth-child(1) {
+            background: linear-gradient(45deg, rgba(255, 107, 107, 0.2), rgba(255, 107, 107, 0.1));
+            border-color: rgba(255, 107, 107, 0.3);
+        }
+
+        .representation-options button:nth-child(1):hover {
+            background: linear-gradient(45deg, rgba(255, 107, 107, 0.3), rgba(255, 107, 107, 0.2));
+            border-color: rgba(255, 107, 107, 0.5);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+        }
+
+        .representation-options button:nth-child(2) {
+            background: linear-gradient(45deg, rgba(255, 217, 61, 0.2), rgba(255, 217, 61, 0.1));
+            border-color: rgba(255, 217, 61, 0.3);
+        }
+
+        .representation-options button:nth-child(2):hover {
+            background: linear-gradient(45deg, rgba(255, 217, 61, 0.3), rgba(255, 217, 61, 0.2));
+            border-color: rgba(255, 217, 61, 0.5);
+            box-shadow: 0 8px 25px rgba(255, 217, 61, 0.3);
+        }
+
+        .representation-options button:nth-child(3) {
+            background: linear-gradient(45deg, rgba(107, 207, 127, 0.2), rgba(107, 207, 127, 0.1));
+            border-color: rgba(107, 207, 127, 0.3);
+        }
+
+        .representation-options button:nth-child(3):hover {
+            background: linear-gradient(45deg, rgba(107, 207, 127, 0.3), rgba(107, 207, 127, 0.2));
+            border-color: rgba(107, 207, 127, 0.5);
+            box-shadow: 0 8px 25px rgba(107, 207, 127, 0.3);
+        }
+
+        .representation-options button:nth-child(4) {
+            background: linear-gradient(45deg, rgba(78, 205, 196, 0.2), rgba(78, 205, 196, 0.1));
+            border-color: rgba(78, 205, 196, 0.3);
+        }
+
+        .representation-options button:nth-child(4):hover {
+            background: linear-gradient(45deg, rgba(78, 205, 196, 0.3), rgba(78, 205, 196, 0.2));
+            border-color: rgba(78, 205, 196, 0.5);
+            box-shadow: 0 8px 25px rgba(78, 205, 196, 0.3);
+        }
+
+        /* Animation */
+        @keyframes shimmer {
+            0% {
+                left: -100%;
+            }
+            100% {
+                left: 100%;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .representation-options {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+            
+            .representation-options button {
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+            
+            .representation-placeholder {
+                aspect-ratio: 4/3;
+                font-size: 14px;
+            }
+            
+            .representation-placeholder .placeholder-icon {
+                font-size: 36px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .representation-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .image-representation {
+                padding: 20px;
+            }
+        }
+        /* Styling untuk Image Representation */
+        .image-representation .representation-content {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .current-image-preview {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .current-image-preview img {
+            max-height: 200px;
+            border: 2px solid #4ecdc4;
+        }
+
+        .image-info {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #b8c5d1;
+        }
+
+        .representation-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        /* Styling untuk Analysis Modal */
+        .analysis-modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .analysis-modal-content {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 15px;
+            width: 80%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .analysis-modal-header {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .analysis-modal-header h3 {
+            color: white;
+            margin: 0;
+        }
+
+        .analysis-modal-close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .analysis-modal-close:hover {
+            color: white;
+        }
+
+        .analysis-modal-body {
+            padding: 20px;
+            color: white;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body>
-    <!-- Neural Network Background -->
+    <!-- Flash overlay untuk efek kamera -->
+    <div class="flash-overlay" id="flash-overlay"></div>
+
+    <!-- Enhanced Neural Network Background -->
     <div class="neural-bg">
         <canvas id="neural-canvas"></canvas>
     </div>
 
-    <!-- Floating Particles -->
-    <div class="particles" id="particles"></div>
-
     <div class="container">
         <div class="header">
-            <h1>🔴🟡🟢 AI COLOR DETECTION SYSTEM</h1>
+            <h1>🔴🟡🟢 COLOR DETECTION & IMAGE ACQUISITION SYSTEM</h1>
         </div>
         
         <div class="main-content">
             <div class="video-section">
                 <div class="video-container">
                     <img id="video-stream" src="/video_feed" alt="Video Stream">
+                    <div class="image-processing-overlay">
+                        <div class="statistics-panel" id="statistics-panel">
+                            <div class="statistics-header">
+                                <span class="statistics-title">Statistik Citra<span class="live-indicator"></span></span>
+                                <button class="statistics-toggle" onclick="toggleStatistics()">−</button>
+                            </div>
+                            
+                            <div class="statistics-content">
+                                <!-- RGB Channel Analysis -->
+                                <div class="rgb-bars">
+                                    <div class="rgb-bar">
+                                        <span class="rgb-label rgb-r">R</span>
+                                        <div class="rgb-progress">
+                                            <div class="rgb-fill r" id="rgb-r-fill" style="width: 0%"></div>
+                                        </div>
+                                        <span class="rgb-value" id="rgb-r-value">0</span>
+                                    </div>
+                                    <div class="rgb-bar">
+                                        <span class="rgb-label rgb-g">G</span>
+                                        <div class="rgb-progress">
+                                            <div class="rgb-fill g" id="rgb-g-fill" style="width: 0%"></div>
+                                        </div>
+                                        <span class="rgb-value" id="rgb-g-value">0</span>
+                                    </div>
+                                    <div class="rgb-bar">
+                                        <span class="rgb-label rgb-b">B</span>
+                                        <div class="rgb-progress">
+                                            <div class="rgb-fill b" id="rgb-b-fill" style="width: 0%"></div>
+                                        </div>
+                                        <span class="rgb-value" id="rgb-b-value">0</span>
+                                    </div>
+                                </div>
+                    
+                                <!-- Standard Deviation -->
+                                <div class="stat-row">
+                                    <span class="stat-label">Std Dev (RGB):</span>
+                                    <span class="stat-value stat-std" id="std-dev-value">0.00</span>
+                                </div>
+                    
+                                <!-- Brightness & Contrast -->
+                                <div class="stat-row">
+                                    <span class="stat-label">Brightness:</span>
+                                    <span class="stat-value stat-brightness" id="brightness-value">0.00</span>
+                                </div>
+                                
+                                <div class="stat-row">
+                                    <span class="stat-label">Contrast:</span>
+                                    <span class="stat-value stat-contrast" id="contrast-value">0.00</span>
+                                </div>
+                    
+                                <!-- Percentiles -->
+                                <div class="percentile-group">
+                                    <div class="percentile-title">Persentil Intensitas</div>
+                                    <div class="percentile-row">
+                                        <div class="percentile-item">
+                                            <div>25%</div>
+                                            <div id="p25-value">0</div>
+                                        </div>
+                                        <div class="percentile-item">
+                                            <div>50%</div>
+                                            <div id="p50-value">0</div>
+                                        </div>
+                                        <div class="percentile-item">
+                                            <div>75%</div>
+                                            <div id="p75-value">0</div>
+                                        </div>
+                                    </div>
+                                    <div class="percentile-row" style="margin-top: 3px;">
+                                        <div class="percentile-item">
+                                            <div>90%</div>
+                                            <div id="p90-value">0</div>
+                                        </div>
+                                        <div class="percentile-item">
+                                            <div>95%</div>
+                                            <div id="p95-value">0</div>
+                                        </div>
+                                        <div class="percentile-item">
+                                            <div>99%</div>
+                                            <div id="p99-value">0</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="processing-info">
+                            <div class="processing-step" id="step-1">
+                                <span class="step-number">1</span>
+                                <span class="step-text">Akuisisi</span>
+                            </div>
+                            <div class="processing-step" id="step-2">
+                                <span class="step-number">2</span>
+                                <span class="step-text">Preprocessing</span>
+                            </div>
+                            <div class="processing-step" id="step-3">
+                                <span class="step-number">3</span>
+                                <span class="step-text">Segmentasi</span>
+                            </div>
+                            <div class="processing-step" id="step-4">
+                                <span class="step-number">4</span>
+                                <span class="step-text">Ekstraksi</span>
+                            </div>
+                            <div class="processing-step" id="step-5">
+                                <span class="step-number">5</span>
+                                <span class="step-text">Klasifikasi</span>
+                            </div>
+                        </div>
+                        
+                        <div class="roi-indicator">
+                            <div class="roi-corners">
+                                <div class="corner top-left"></div>
+                                <div class="corner top-right"></div>
+                                <div class="corner bottom-left"></div>
+                                <div class="corner bottom-right"></div>
+                            </div>
+                            <div class="roi-center">
+                                <div class="crosshair horizontal"></div>
+                                <div class="crosshair vertical"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="histogram-preview">
+                            <canvas id="histogram-canvas" width="100" height="40"></canvas>
+                            <div class="histogram-label">RGB Histogram</div>
+                        </div>
+                    </div>
+                    <div class="detection-frame"></div>
                 </div>
+                
                 
                 <div class="control-buttons">
                     <button id="start-btn" class="btn-success" onclick="startDetection()">
-                        ▶️ Mulai Deteksi Warna
+                        ▶️ Mulai Deteksi
                     </button>
                     <button id="stop-btn" class="btn-danger" onclick="stopDetection()">
-                        ⏹️ Hentikan Deteksi
+                        ⏹️ Stop Deteksi
                     </button>
+                    <button id="capture-btn" class="btn-capture" onclick="captureImage()">
+                        📷 Ambil Foto
+                    </button>
+                </div>
+                
+                <div class="acquisition-controls">
+                    <button id="auto-capture-btn" class="btn-info" onclick="toggleAutoCapture()">
+                        🔄 Auto Capture: OFF
+                    </button>
+                    <select id="capture-interval">
+                        <option value="5">5 detik</option>
+                        <option value="10">10 detik</option>
+                        <option value="30">30 detik</option>
+                        <option value="60">60 detik</option>
+                    </select>
+                </div>
+                <div class="image-representation">
+                    <h3>🖼️ Image Representation</h3>
+                    <div class="representation-content">
+                        <div class="representation-placeholder" id="representation-display">
+                            Representasi citra akan ditampilkan di sini
+                        </div>
+                        <div class="representation-options">
+                            <button class="btn-info" onclick="showHistogram()">
+                                📊 Histogram
+                            </button>
+                            <button class="btn-info" onclick="showColorSpace()">
+                                🌈 Color Space
+                            </button>
+                            <button class="btn-info" onclick="showEdgeDetection()">
+                                🔍 Edge Detection
+                            </button>
+                            <button class="btn-info" onclick="showFeatures()">
+                                ⚡ Features
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -524,86 +1506,260 @@
                 <div class="status-panel">
                     <h3>📊 Status Sistem</h3>
                     <div class="status-item">
-                        <span>Status Deteksi:</span>
+                        <span>Status:</span>
                         <span id="detection-status" class="detection-status detection-inactive">Tidak Aktif</span>
                     </div>
                     <div class="status-item">
-                        <span>Warna Terdeteksi:</span>
+                        <span>Warna:</span>
                         <span id="current-color" class="status-value color-none">Tidak ada</span>
+                    </div>
+                    <div class="status-item">
+                        <span>Total Foto:</span>
+                        <span id="total-images" class="status-value color-none">0</span>
                     </div>
                 </div>
                 
+                
+                <div class="acquisition-section">
+                    <h3>📸 Akuisisi Citra</h3>
+                    
+                    <div class="capture-settings">
+                        <div class="setting-item">
+                            <label>Format:</label>
+                            <select id="image-format">
+                                <option value="jpg">JPG</option>
+                                <option value="png">PNG</option>
+                            </select>
+                        </div>
+                        <div class="setting-item">
+                            <label>Kualitas:</label>
+                            <select id="image-quality">
+                                <option value="high">Tinggi</option>
+                                <option value="medium" selected>Sedang</option>
+                                <option value="low">Rendah</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="capture-preview" id="capture-preview">
+                        <div class="capture-placeholder">
+                            Foto terakhir akan ditampilkan di sini
+                        </div>
+                    </div>
+                    
+                    <div class="capture-info" id="capture-info">
+                        <div>Tidak ada foto yang diambil</div>
+                    </div>
+                    
+                    <button class="btn-secondary" onclick="clearAllImages()" style="width: 100%; margin-top: 10px;">
+                        🗑️ Hapus Semua Foto
+                    </button>
+                </div>
+                
+                
                 <div class="manual-control">
-                    <h3>🎮 Kontrol Manual LED</h3>
+                    <h3>🎮 Kontrol LED</h3>
                     <div class="led-buttons">
                         <button class="btn-danger" onclick="manualControl('merah')">
-                            🔴 LED Merah
+                            🔴 Merah
                         </button>
                         <button class="btn-warning" onclick="manualControl('kuning')">
-                            🟡 LED Kuning
+                            🟡 Kuning
                         </button>
                         <button class="btn-success" onclick="manualControl('hijau')">
-                            🟢 LED Hijau
+                            🟢 Hijau
                         </button>
                         <button class="btn-secondary" onclick="manualControl('off')">
-                            ⚫ Matikan Semua
+                            ⚫ Off
                         </button>
                     </div>
                 </div>
                 
                 <div class="instructions">
-                    <h3>📋 Petunjuk Penggunaan</h3>
+                    <h3>📋 Petunjuk</h3>
                     <ul>
-                        <li>Pastikan Arduino terhubung ke komputer</li>
-                        <li>Klik "Mulai Deteksi Warna" untuk mengaktifkan sistem</li>
-                        <li>Tunjukkan objek berwarna merah, kuning, atau hijau ke kamera</li>
-                        <li>LED di Arduino akan menyala sesuai warna yang terdeteksi</li>
-                        <li>Gunakan kontrol manual untuk menguji LED secara langsung</li>
+                        <li>Pastikan Arduino terhubung</li>
+                        <li>Klik "Mulai Deteksi" untuk aktifkan</li>
+                        <li>Gunakan "Ambil Foto" untuk capture manual</li>
+                        <li>Auto Capture mengambil foto otomatis</li>
+                        <li>Tunjukkan objek warna ke area deteksi</li>
+                        <li>LED akan menyala sesuai warna</li>
                     </ul>
                 </div>
             </div>
         </div>
+        
+        <!-- Gallery section -->
+        <div class="image-gallery">
+            <h3>🖼️ Galeri Foto (Foto Terbaru)</h3>
+            <div class="gallery-grid" id="gallery-grid">
+                <!-- Foto akan ditambahkan di sini -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal untuk preview -->
+    <div class="modal" id="image-modal">
+        <span class="modal-close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="modal-image">
     </div>
 
     <script>
+        
+        // Variabel global
+        let capturedImages = [];
+        let autoCapture = false;
+        let autoCaptureInterval = null;
+        let imageCounter = 0;
+        let statisticsMinimized = false;
+        let isDetecting = false;
+        let currentDetectedColor = 'Tidak ada';
+
+        // Inisialisasi saat dokumen siap
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                initializeSystem();
+            }, 1000);
+        });
+
+        // Fungsi inisialisasi sistem
+        function initializeSystem() {
+            animateProcessingSteps();
+            initNeuralNetwork();
+            startHistogramUpdates();
+            startStatisticsUpdates();
+            updateStatus();
+            loadExistingImages();
+            setupKeyboardShortcuts();
+            setupTooltips();
+        }
+
+        // Animasi processing steps
+        function animateProcessingSteps() {
+            const steps = document.querySelectorAll('.processing-step');
+            let currentStep = 0;
+            
+            function activateStep() {
+                // Reset semua step
+                steps.forEach(step => {
+                    step.classList.remove('active', 'processing');
+                });
+                
+                // Aktifkan step saat ini
+                if (currentStep < steps.length) {
+                    steps[currentStep].classList.add('active', 'processing');
+                    currentStep++;
+                    setTimeout(activateStep, 800);
+                } else {
+                    currentStep = 0;
+                    setTimeout(activateStep, 2000);
+                }
+            }
+            
+            activateStep();
+        }
+
+        // Gambar histogram RGB
+        function drawHistogram() {
+            const canvas = document.getElementById('histogram-canvas');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Generate histogram data berdasarkan warna yang terdeteksi
+            let redData, greenData, blueData;
+            
+            if (currentDetectedColor === 'Merah') {
+                redData = Array.from({length: 20}, () => Math.random() * 25 + 15);
+                greenData = Array.from({length: 20}, () => Math.random() * 10 + 2);
+                blueData = Array.from({length: 20}, () => Math.random() * 10 + 2);
+            } else if (currentDetectedColor === 'Hijau') {
+                redData = Array.from({length: 20}, () => Math.random() * 10 + 2);
+                greenData = Array.from({length: 20}, () => Math.random() * 25 + 15);
+                blueData = Array.from({length: 20}, () => Math.random() * 10 + 2);
+            } else if (currentDetectedColor === 'Kuning') {
+                redData = Array.from({length: 20}, () => Math.random() * 20 + 10);
+                greenData = Array.from({length: 20}, () => Math.random() * 20 + 10);
+                blueData = Array.from({length: 20}, () => Math.random() * 8 + 2);
+            } else {
+                redData = Array.from({length: 20}, () => Math.random() * 15 + 5);
+                greenData = Array.from({length: 20}, () => Math.random() * 15 + 5);
+                blueData = Array.from({length: 20}, () => Math.random() * 15 + 5);
+            }
+            
+            const barWidth = canvas.width / 20;
+            
+            // Gambar bars
+            for (let i = 0; i < 20; i++) {
+                const x = i * barWidth;
+                
+                // Red channel
+                ctx.fillStyle = 'rgba(255, 100, 100, 0.7)';
+                ctx.fillRect(x, canvas.height - redData[i], barWidth/3, redData[i]);
+                
+                // Green channel
+                ctx.fillStyle = 'rgba(100, 255, 100, 0.7)';
+                ctx.fillRect(x + barWidth/3, canvas.height - greenData[i], barWidth/3, greenData[i]);
+                
+                // Blue channel
+                ctx.fillStyle = 'rgba(100, 100, 255, 0.7)';
+                ctx.fillRect(x + 2*barWidth/3, canvas.height - blueData[i], barWidth/3, blueData[i]);
+            }
+        }
+
+        // Start histogram updates
+        function startHistogramUpdates() {
+            setInterval(drawHistogram, 1000);
+            drawHistogram();
+        }
+
         // Neural Network Animation
         function initNeuralNetwork() {
             const canvas = document.getElementById('neural-canvas');
+            if (!canvas) return;
+            
             const ctx = canvas.getContext('2d');
             
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
             
             const nodes = [];
-            const connections = [];
-            const nodeCount = 50;
+            const nodeCount = 80;
+            const maxDistance = 120;
             
-            // Create nodes
             for (let i = 0; i < nodeCount; i++) {
                 nodes.push({
                     x: Math.random() * canvas.width,
                     y: Math.random() * canvas.height,
-                    vx: (Math.random() - 0.5) * 0.5,
-                    vy: (Math.random() - 0.5) * 0.5,
-                    radius: Math.random() * 3 + 1
+                    vx: (Math.random() - 0.5) * 1.2,
+                    vy: (Math.random() - 0.5) * 1.2,
+                    radius: Math.random() * 4 + 2,
+                    opacity: Math.random() * 0.8 + 0.2,
+                    pulseSpeed: Math.random() * 0.02 + 0.01
                 });
             }
             
+            let time = 0;
+            
             function drawNetwork() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
+                time += 0.01;
                 
                 // Draw connections
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-                ctx.lineWidth = 1;
-                
                 for (let i = 0; i < nodes.length; i++) {
                     for (let j = i + 1; j < nodes.length; j++) {
-                        const dist = Math.sqrt(
-                            (nodes[i].x - nodes[j].x) ** 2 + 
-                            (nodes[i].y - nodes[j].y) ** 2
-                        );
+                        const dx = nodes[i].x - nodes[j].x;
+                        const dy = nodes[i].y - nodes[j].y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
                         
-                        if (dist < 100) {
+                        if (dist < maxDistance) {
+                            const opacity = (1 - dist / maxDistance) * 0.3;
+                            const pulse = Math.sin(time * 2 + dist * 0.01) * 0.1 + 0.1;
+                            
+                            ctx.strokeStyle = `rgba(255, 255, 255, ${opacity + pulse})`;
+                            ctx.lineWidth = (1 - dist / maxDistance) * 2;
+                            
                             ctx.beginPath();
                             ctx.moveTo(nodes[i].x, nodes[i].y);
                             ctx.lineTo(nodes[j].x, nodes[j].y);
@@ -613,176 +1769,940 @@
                 }
                 
                 // Draw nodes
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-                nodes.forEach(node => {
+                nodes.forEach((node, index) => {
+                    const pulse = Math.sin(time * 3 + index * 0.1) * 0.3 + 0.7;
+                    const glowPulse = Math.sin(time * 2 + index * 0.05) * 0.5 + 0.5;
+                    
+                    const gradient = ctx.createRadialGradient(
+                        node.x, node.y, 0,
+                        node.x, node.y, node.radius * 3
+                    );
+                    gradient.addColorStop(0, `rgba(255, 255, 255, ${node.opacity * pulse})`);
+                    gradient.addColorStop(0.5, `rgba(78, 205, 196, ${0.3 * glowPulse})`);
+                    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                    
+                    ctx.fillStyle = gradient;
                     ctx.beginPath();
-                    ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+                    ctx.arc(node.x, node.y, node.radius * 3, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    ctx.fillStyle = `rgba(255, 255, 255, ${node.opacity * pulse})`;
+                    ctx.beginPath();
+                    ctx.arc(node.x, node.y, node.radius * pulse, 0, Math.PI * 2);
                     ctx.fill();
                     
                     // Update position
-                    node.x += node.vx;
-                    node.y += node.vy;
-                    
-                    // Bounce off edges
-                    if (node.x < 0 || node.x > canvas.width) node.vx *= -1;
-                    if (node.y < 0 || node.y > canvas.height) node.vy *= -1;
+                    updateNodePosition(node, canvas);
                 });
                 
                 requestAnimationFrame(drawNetwork);
             }
             
+            function updateNodePosition(node, canvas) {
+                const centerX = canvas.width / 2;
+                const centerY = canvas.height / 2;
+                const distToCenter = Math.sqrt((node.x - centerX) ** 2 + (node.y - centerY) ** 2);
+                
+                if (distToCenter > canvas.width * 0.4) {
+                    node.vx += (centerX - node.x) * 0.0001;
+                    node.vy += (centerY - node.y) * 0.0001;
+                }
+                
+                node.x += node.vx;
+                node.y += node.vy;
+                
+                // Boundary checks
+                if (node.x < 0 || node.x > canvas.width) {
+                    node.vx *= -0.8;
+                    node.x = Math.max(0, Math.min(canvas.width, node.x));
+                }
+                if (node.y < 0 || node.y > canvas.height) {
+                    node.vy *= -0.8;
+                    node.y = Math.max(0, Math.min(canvas.height, node.y));
+                }
+                
+                // Add random movement
+                node.vx += (Math.random() - 0.5) * 0.02;
+                node.vy += (Math.random() - 0.5) * 0.02;
+                
+                // Limit velocity
+                const maxVel = 2;
+                const vel = Math.sqrt(node.vx ** 2 + node.vy ** 2);
+                if (vel > maxVel) {
+                    node.vx = (node.vx / vel) * maxVel;
+                    node.vy = (node.vy / vel) * maxVel;
+                }
+            }
+            
             drawNetwork();
             
-            // Resize canvas on window resize
             window.addEventListener('resize', () => {
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
             });
         }
-        
-        // Initialize floating particles
-        function initParticles() {
-            const particlesContainer = document.getElementById('particles');
-            
-            function createParticle() {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.animationDelay = Math.random() * 15 + 's';
-                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
-                particlesContainer.appendChild(particle);
-                
-                setTimeout(() => {
-                    particle.remove();
-                }, 25000);
-            }
-            
-            // Create particles periodically
-            setInterval(createParticle, 1000);
-        }
-        
-        // Initialize animations
-        initNeuralNetwork();
-        initParticles();
-        
-        // Update status every second
-        setInterval(updateStatus, 1000);
-        
+
+        // Update status sistem
         function updateStatus() {
             fetch('/get_status')
                 .then(response => response.json())
                 .then(data => {
                     // Update detection status
                     const detectionStatus = document.getElementById('detection-status');
-                    if (data.is_detecting) {
-                        detectionStatus.textContent = 'Aktif';
-                        detectionStatus.className = 'detection-status detection-active';
-                    } else {
-                        detectionStatus.textContent = 'Tidak Aktif';
-                        detectionStatus.className = 'detection-status detection-inactive';
+                    if (detectionStatus) {
+                        if (data.is_detecting) {
+                            detectionStatus.textContent = 'Aktif';
+                            detectionStatus.className = 'detection-status detection-active';
+                            isDetecting = true;
+                        } else {
+                            detectionStatus.textContent = 'Tidak Aktif';
+                            detectionStatus.className = 'detection-status detection-inactive';
+                            isDetecting = false;
+                        }
                     }
                     
                     // Update current color
                     const currentColor = document.getElementById('current-color');
-                    currentColor.textContent = data.current_color;
+                    if (currentColor) {
+                        currentColor.textContent = data.current_color;
+                        currentDetectedColor = data.current_color;
+                        
+                        // Update color class
+                        currentColor.className = 'status-value';
+                        if (data.current_color === 'Merah') {
+                            currentColor.classList.add('color-merah');
+                        } else if (data.current_color === 'Kuning') {
+                            currentColor.classList.add('color-kuning');
+                        } else if (data.current_color === 'Hijau') {
+                            currentColor.classList.add('color-hijau');
+                        } else {
+                            currentColor.classList.add('color-none');
+                        }
+                    }
                     
-                    // Update color class
-                    currentColor.className = 'status-value';
-                    if (data.current_color === 'Merah') {
-                        currentColor.classList.add('color-merah');
-                    } else if (data.current_color === 'Kuning') {
-                        currentColor.classList.add('color-kuning');
-                    } else if (data.current_color === 'Hijau') {
-                        currentColor.classList.add('color-hijau');
-                    } else {
-                        currentColor.classList.add('color-none');
+                    // Update detection frame
+                    updateDetectionFrame(data.current_color);
+                    
+                    // Update processing status
+                    updateProcessingStatus(data.is_detecting, data.current_color);
+                    
+                    // Update statistics dengan warna terdeteksi
+                    updateStatisticsWithColorDetection(data.current_color);
+                    
+                    // Update total images count
+                    const totalImages = document.getElementById('total-images');
+                    if (totalImages) {
+                        totalImages.textContent = capturedImages.length;
+                    }
+                    
+                    // PERBAIKAN: Kontrol LED berdasarkan warna terdeteksi
+                    if (data.is_detecting && data.current_color !== 'Tidak ada') {
+                        controlLEDBasedOnColor(data.current_color);
+                    } else if (!data.is_detecting) {
+                        // Matikan semua LED jika deteksi tidak aktif
+                        controlLEDBasedOnColor('off');
                     }
                 })
                 .catch(error => {
                     console.error('Error updating status:', error);
                 });
         }
-        
+
+        // PERBAIKAN: Fungsi kontrol LED berdasarkan warna
+        function controlLEDBasedOnColor(color) {
+            let ledCommand = '';
+            
+            switch(color) {
+                case 'Merah':
+                    ledCommand = 'red';
+                    break;
+                case 'Kuning':
+                    ledCommand = 'yellow';
+                    break;
+                case 'Hijau':
+                    ledCommand = 'green';
+                    break;
+                default:
+                    ledCommand = 'off';
+            }
+            
+            // Kirim perintah ke Arduino
+            fetch(`/control_led/${ledCommand}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // PERBAIKAN: Cek response dengan lebih fleksibel
+                if (data && (data.success === true || data.status === 'success' || response.ok)) {
+                    console.log(`LED ${ledCommand} berhasil dikontrol`);
+                } else {
+                    console.error(`Gagal mengontrol LED: ${data.message || 'Unknown error'}`);
+                }
+            })
+            .catch(error => {
+                console.error('Error controlling LED:', error);
+            });
+        }
+
+        // Update detection frame color
+        function updateDetectionFrame(color) {
+            const frame = document.querySelector('.detection-frame');
+            if (!frame) return;
+            
+            switch(color) {
+                case 'Merah':
+                    frame.style.borderColor = '#ff6b6b';
+                    frame.style.boxShadow = '0 0 20px rgba(255, 107, 107, 0.8)';
+                    break;
+                case 'Kuning':
+                    frame.style.borderColor = '#ffd93d';
+                    frame.style.boxShadow = '0 0 20px rgba(255, 217, 61, 0.8)';
+                    break;
+                case 'Hijau':
+                    frame.style.borderColor = '#6bcf7f';
+                    frame.style.boxShadow = '0 0 20px rgba(107, 207, 127, 0.8)';
+                    break;
+                default:
+                    frame.style.borderColor = '#4ecdc4';
+                    frame.style.boxShadow = '0 0 10px rgba(78, 205, 196, 0.5)';
+            }
+        }
+
+        // Update processing steps berdasarkan status
+        function updateProcessingStatus(isDetecting, detectedColor) {
+            const steps = document.querySelectorAll('.processing-step');
+            
+            if (isDetecting) {
+                steps.forEach((step, index) => {
+                    setTimeout(() => {
+                        step.classList.add('active');
+                        if (index === steps.length - 1 && detectedColor !== 'Tidak ada') {
+                            step.style.background = 'rgba(81, 207, 102, 0.8)';
+                        }
+                    }, index * 200);
+                });
+            } else {
+                steps.forEach(step => {
+                    step.classList.remove('active');
+                    step.style.background = 'rgba(0, 0, 0, 0.7)';
+                });
+            }
+        }
+
+        // PERBAIKAN: Fungsi kontrol deteksi
         function startDetection() {
-            fetch('/start_detection')
-                .then(response => response.json())
+            fetch('/start_detection', { method: 'POST' })
+                .then(response => {
+                    // PERBAIKAN: Cek status response terlebih dahulu
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                })
                 .then(data => {
-                    console.log('Detection started:', data);
-                    showNotification('Deteksi warna dimulai!', 'success');
+                    // PERBAIKAN: Cek response dengan lebih fleksibel
+                    if (data && (data.success === true || data.status === 'success' || data.message === 'Detection started')) {
+                        console.log('Detection started:', data);
+                        showNotification('Deteksi warna berhasil dimulai!', 'success');
+                        isDetecting = true;
+                    } else {
+                        showNotification(data.message || 'Gagal memulai deteksi!', 'error');
+                    }
                 })
                 .catch(error => {
                     console.error('Error starting detection:', error);
                     showNotification('Error memulai deteksi!', 'error');
                 });
         }
-        
+
         function stopDetection() {
-            fetch('/stop_detection')
-                .then(response => response.json())
+            fetch('/stop_detection', { method: 'POST' })
+                .then(response => {
+                    // PERBAIKAN: Cek status response terlebih dahulu
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                })
                 .then(data => {
-                    console.log('Detection stopped:', data);
-                    showNotification('Deteksi warna dihentikan!', 'warning');
+                    // PERBAIKAN: Cek response dengan lebih fleksibel
+                    if (data && (data.success === true || data.status === 'success' || data.message === 'Detection stopped')) {
+                        console.log('Detection stopped:', data);
+                        showNotification('Deteksi warna berhasil dihentikan!', 'success');
+                        isDetecting = false;
+                        currentDetectedColor = 'Tidak ada';
+                        // Matikan semua LED
+                        controlLEDBasedOnColor('off');
+                    } else {
+                        showNotification(data.message || 'Gagal menghentikan deteksi!', 'error');
+                    }
                 })
                 .catch(error => {
                     console.error('Error stopping detection:', error);
                     showNotification('Error menghentikan deteksi!', 'error');
                 });
         }
-        
+
+        // PERBAIKAN: Manual control LED
         function manualControl(color) {
-            fetch(`/manual_control/${color}`)
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Manual control:', data);
-                    let message = '';
-                    if (color === 'off') {
-                        message = 'Semua LED dimatikan';
+            fetch(`/manual_control/${color}`, { method: 'POST' })
+                .then(response => {
+                    // PERBAIKAN: Cek status response terlebih dahulu
+                    if (response.ok) {
+                        return response.json();
                     } else {
-                        message = `LED ${color} dinyalakan`;
+                        throw new Error(`HTTP error! status: ${response.status}`);
                     }
-                    showNotification(message, 'info');
+                })
+                .then(data => {
+                    // PERBAIKAN: Cek response dengan lebih fleksibel
+                    if (data && (data.success === true || data.status === 'success' || response.ok)) {
+                        console.log('Manual control:', data);
+                        let message = '';
+                        if (color === 'off') {
+                            message = 'Semua LED berhasil dimatikan';
+                        } else {
+                            message = `LED ${color} berhasil dinyalakan`;
+                        }
+                        showNotification(message, 'success');
+                    } else {
+                        showNotification(data.message || 'Gagal mengontrol LED!', 'error');
+                    }
                 })
                 .catch(error => {
                     console.error('Error with manual control:', error);
                     showNotification('Error mengontrol LED!', 'error');
                 });
         }
-        
+
+        // Fungsi capture image
+        function captureImage() {
+            const captureBtn = document.getElementById('capture-btn');
+            if (!captureBtn) return;
+            
+            captureBtn.disabled = true;
+            captureBtn.textContent = '📷 Mengambil...';
+            
+            // Efek flash
+            const flashOverlay = document.getElementById('flash-overlay');
+            if (flashOverlay) {
+                flashOverlay.classList.add('active');
+                setTimeout(() => {
+                    flashOverlay.classList.remove('active');
+                }, 300);
+            }
+            
+            const format = document.getElementById('image-format')?.value || 'jpg';
+            const quality = document.getElementById('image-quality')?.value || '95';
+            
+            fetch(`/capture_image?format=${format}&quality=${quality}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        imageCounter++;
+                        const imageData = {
+                            id: imageCounter,
+                            filename: data.filename,
+                            timestamp: new Date().toLocaleString('id-ID'),
+                            color: data.detected_color || currentDetectedColor,
+                            format: format.toUpperCase(),
+                            size: data.file_size || 'Unknown'
+                        };
+                        
+                        // Tambahkan ke array (maksimal 20 gambar)
+                        capturedImages.unshift(imageData);
+                        if (capturedImages.length > 20) {
+                            capturedImages.pop();
+                        }
+                        
+                        // Update preview dan gallery
+                        updateCapturePreview(imageData);
+                        updateGallery();
+                        updateImageRepresentation(imageData);
+                        
+                        showNotification(`Foto berhasil diambil: ${data.filename}`, 'success');
+                    } else {
+                        showNotification('Gagal mengambil foto!', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error capturing image:', error);
+                    showNotification('Error mengambil foto!', 'error');
+                })
+                .finally(() => {
+                    captureBtn.disabled = false;
+                    captureBtn.textContent = '📷 Ambil Foto';
+                });
+        }
+
+        // Update preview foto terakhir
+        function updateCapturePreview(imageData) {
+            const preview = document.getElementById('capture-preview');
+            const info = document.getElementById('capture-info');
+            
+            if (preview) {
+                preview.innerHTML = `<img src="/static/captures/${imageData.filename}" alt="Captured Image" onclick="openModal('${imageData.filename}')">`;
+            }
+            
+            if (info) {
+                info.innerHTML = `
+                    <div><span class="capture-timestamp">${imageData.timestamp}</span></div>
+                    <div>Warna: ${imageData.color}</div>
+                    <div>Format: ${imageData.format} | Ukuran: ${imageData.size}</div>
+                `;
+            }
+        }
+
+        // Update galeri foto
+        function updateGallery() {
+            const galleryGrid = document.getElementById('gallery-grid');
+            if (!galleryGrid) return;
+            
+            galleryGrid.innerHTML = '';
+            
+            capturedImages.forEach(image => {
+                const galleryItem = document.createElement('div');
+                galleryItem.className = 'gallery-item';
+                galleryItem.innerHTML = `
+                    <img src="/static/captures/${image.filename}" alt="Captured Image" onclick="openModal('${image.filename}')">
+                    <div class="item-info">
+                        <div>${image.color}</div>
+                        <div>${image.timestamp.split(' ')[1]}</div>
+                    </div>
+                `;
+                galleryGrid.appendChild(galleryItem);
+            });
+        }
+
+        // Toggle auto capture
+        function toggleAutoCapture() {
+            const btn = document.getElementById('auto-capture-btn');
+            const intervalSelect = document.getElementById('capture-interval');
+            
+            if (!btn || !intervalSelect) return;
+            
+            const interval = parseInt(intervalSelect.value);
+            
+            if (!autoCapture) {
+                autoCapture = true;
+                btn.textContent = '🔄 Auto Capture: ON';
+                btn.style.background = '#51cf66';
+                
+                autoCaptureInterval = setInterval(() => {
+                    captureImage();
+                }, interval * 1000);
+                
+                showNotification(`Auto capture dimulai (${interval} detik)`, 'info');
+            } else {
+                autoCapture = false;
+                btn.textContent = '🔄 Auto Capture: OFF';
+                btn.style.background = '#4ecdc4';
+                
+                if (autoCaptureInterval) {
+                    clearInterval(autoCaptureInterval);
+                    autoCaptureInterval = null;
+                }
+                
+                showNotification('Auto capture dihentikan', 'warning');
+            }
+        }
+
+        // Hapus semua foto
+        function clearAllImages() {
+            if (capturedImages.length === 0) {
+                showNotification('Tidak ada foto untuk dihapus', 'warning');
+                return;
+            }
+            
+            if (confirm(`Hapus ${capturedImages.length} foto?`)) {
+                fetch('/clear_images', { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            capturedImages = [];
+                            const preview = document.getElementById('capture-preview');
+                            const info = document.getElementById('capture-info');
+                            const gallery = document.getElementById('gallery-grid');
+                            
+                            if (preview) {
+                                preview.innerHTML = '<div class="capture-placeholder">Foto terakhir akan ditampilkan di sini</div>';
+                            }
+                            if (info) {
+                                info.innerHTML = '<div>Tidak ada foto yang diambil</div>';
+                            }
+                            if (gallery) {
+                                gallery.innerHTML = '';
+                            }
+                            
+                            showNotification('Semua foto berhasil dihapus', 'success');
+                        } else {
+                            showNotification('Gagal menghapus foto', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error clearing images:', error);
+                        showNotification('Error menghapus foto!', 'error');
+                    });
+            }
+        }
+
+        // Modal functions
+        function openModal(filename) {
+            const modal = document.getElementById('image-modal');
+            const modalImg = document.getElementById('modal-image');
+            
+            if (modal && modalImg) {
+                modal.style.display = 'flex';
+                modalImg.src = `/static/captures/${filename}`;
+            }
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('image-modal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Statistics functions
+        function calculateImageStatistics() {
+            // Mock statistics based on detected color
+            const stats = {
+                rgb: { r: 128, g: 128, b: 128 },
+                stdDev: 45.67,
+                brightness: 127.5,
+                contrast: 0.65,
+                percentiles: {
+                    p25: 64, p50: 128, p75: 192,
+                    p90: 230, p95: 240, p99: 250
+                }
+            };
+            
+            // Adjust based on detected color
+            if (currentDetectedColor === 'Merah') {
+                stats.rgb = { r: 200, g: 80, b: 80 };
+            } else if (currentDetectedColor === 'Hijau') {
+                stats.rgb = { r: 80, g: 200, b: 80 };
+            } else if (currentDetectedColor === 'Kuning') {
+                stats.rgb = { r: 200, g: 200, b: 80 };
+            }
+            
+            return stats;
+        }
+
+        function updateStatisticsDisplay() {
+            if (statisticsMinimized) return;
+            
+            const stats = calculateImageStatistics();
+            
+            // Update RGB bars dan values
+            const rgbRFill = document.getElementById('rgb-r-fill');
+            const rgbGFill = document.getElementById('rgb-g-fill');
+            const rgbBFill = document.getElementById('rgb-b-fill');
+            
+            if (rgbRFill) rgbRFill.style.width = `${(stats.rgb.r / 255) * 100}%`;
+            if (rgbGFill) rgbGFill.style.width = `${(stats.rgb.g / 255) * 100}%`;
+            if (rgbBFill) rgbBFill.style.width = `${(stats.rgb.b / 255) * 100}%`;
+            
+            const rgbRValue = document.getElementById('rgb-r-value');
+            const rgbGValue = document.getElementById('rgb-g-value');
+            const rgbBValue = document.getElementById('rgb-b-value');
+            
+            if (rgbRValue) rgbRValue.textContent = stats.rgb.r;
+            if (rgbGValue) rgbGValue.textContent = stats.rgb.g;
+            if (rgbBValue) rgbBValue.textContent = stats.rgb.b;
+            
+            // Update other statistics
+            const elements = {
+                'std-dev-value': stats.stdDev.toFixed(2),
+                'brightness-value': stats.brightness.toFixed(2),
+                'contrast-value': stats.contrast.toFixed(2),
+                'p25-value': stats.percentiles.p25,
+                'p50-value': stats.percentiles.p50,
+                'p75-value': stats.percentiles.p75,
+                'p90-value': stats.percentiles.p90,
+                'p95-value': stats.percentiles.p95,
+                'p99-value': stats.percentiles.p99
+            };
+            
+            Object.entries(elements).forEach(([id, value]) => {
+                const element = document.getElementById(id);
+                if (element) element.textContent = value;
+            });
+        }
+
+        function updateStatisticsWithColorDetection(detectedColor) {
+            const panel = document.getElementById('statistics-panel');
+            if (!panel) return;
+            
+            if (detectedColor && detectedColor !== 'Tidak ada') {
+                switch(detectedColor) {
+                    case 'Merah':
+                        panel.style.borderColor = 'rgba(255, 107, 107, 0.6)';
+                        break;
+                    case 'Kuning':
+                        panel.style.borderColor = 'rgba(255, 217, 61, 0.6)';
+                        break;
+                    case 'Hijau':
+                        panel.style.borderColor = 'rgba(107, 207, 127, 0.6)';
+                        break;
+                    default:
+                        panel.style.borderColor = 'rgba(78, 205, 196, 0.3)';
+                }
+            } else {
+                panel.style.borderColor = 'rgba(78, 205, 196, 0.3)';
+            }
+        }
+
+        function toggleStatistics() {
+            const panel = document.getElementById('statistics-panel');
+            if (!panel) return;
+            
+            statisticsMinimized = !statisticsMinimized;
+            
+            if (statisticsMinimized) {
+                panel.style.height = '40px';
+                panel.style.overflow = 'hidden';
+            } else {
+                panel.style.height = 'auto';
+                panel.style.overflow = 'visible';
+            }
+        }
+
+        function startStatisticsUpdates() {
+            setInterval(updateStatisticsDisplay, 500);
+        }
+
+        // Load existing images
+        function loadExistingImages() {
+            fetch('/get_captured_images')
+                .then(response => response.json())
+                .then(data => {
+                    
+                    if (data.success && data.images.length > 0) {
+                        capturedImages = data.images;
+                        imageCounter = Math.max(...capturedImages.map(img => img.id)) || 0;
+                        
+                        if (capturedImages.length > 0) {
+                            updateCapturePreview(capturedImages[0]);
+                        }
+                        
+                        updateGallery();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading existing images:', error);
+                });
+        }
+
+        // Setup keyboard shortcuts
+        function setupKeyboardShortcuts() {
+            // Tambahkan event listener untuk ESC key untuk menutup analysis modal
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeAnalysisModal();
+            }
+        });
+
+        // Click outside modal to close
+        window.addEventListener('click', function(event) {
+            const analysisModal = document.getElementById('analysis-modal');
+            if (event.target === analysisModal) {
+                closeAnalysisModal();
+            }
+        });
+            document.addEventListener('keydown', function(event) {
+                switch(event.key) {
+                    case ' ': // Spacebar untuk capture
+                        event.preventDefault();
+                        captureImage();
+                        break;
+                    case 'Escape':
+                        closeModal();
+                        break;
+                    case 's':
+                        if (event.ctrlKey) {
+                            event.preventDefault();
+                            startDetection();
+                        }
+                        break;
+                    case 'x':
+                        if (event.ctrlKey) {
+                            event.preventDefault();
+                            stopDetection();
+                        }
+                        break;
+                    case 'i':
+                        if (event.ctrlKey) {
+                            event.preventDefault();
+                            toggleStatistics();
+                        }
+                        break;
+                }
+            });
+        }
+
+        // Setup tooltips
+        function setupTooltips() {
+            const tooltips = {
+                'capture-btn': 'Klik atau tekan Spacebar untuk mengambil foto',
+                'start-btn': 'Klik atau tekan Ctrl+S untuk memulai deteksi',
+                'stop-btn': 'Klik atau tekan Ctrl+X untuk menghentikan deteksi'
+            };
+            
+            Object.entries(tooltips).forEach(([id, title]) => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.title = title;
+                }
+            });
+        }
+
+        // Notification system
         function showNotification(message, type) {
             const notification = document.createElement('div');
             notification.className = 'notification';
             
             // Set background based on type
-            switch(type) {
-                case 'success':
-                    notification.style.background = 'linear-gradient(45deg, #51cf66, #40c057)';
-                    break;
-                case 'error':
-                    notification.style.background = 'linear-gradient(45deg, #ff6b6b, #fa5252)';
-                    break;
-                case 'warning':
-                    notification.style.background = 'linear-gradient(45deg, #ffd93d, #ffc107)';
-                    notification.style.color = '#333';
-                    break;
-                case 'info':
-                    notification.style.background = 'linear-gradient(45deg, #4ecdc4, #45b7d1)';
-                    break;
-                default:
-                    notification.style.background = 'linear-gradient(45deg, #868e96, #6c757d)';
+            const colors = {
+                'success': '#51cf66',
+                'error': '#ff6b6b',
+                'warning': '#ffd93d',
+                'info': '#4ecdc4'
+            };
+            
+            notification.style.background = colors[type] || '#868e96';
+            
+            if (type === 'warning') {
+                notification.style.color = '#333';
             }
             
             notification.textContent = message;
+            notification.style.cssText += `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                border-radius: 8px;
+                color: white;
+                font-weight: 500;
+                z-index: 10000;
+                animation: slideIn 0.3s ease-out;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            `;
+            
             document.body.appendChild(notification);
             
             // Remove notification after 3 seconds
             setTimeout(() => {
-                notification.style.animation = 'slideInRight 0.4s reverse';
-                setTimeout(() => notification.remove(), 400);
+                notification.style.animation = 'slideOut 0.3s ease-in';
+                setTimeout(() => notification.remove(), 300);
             }, 3000);
         }
-        
-        // Initial status update
-        updateStatus();
+
+        // Event listeners untuk interval auto capture
+        document.addEventListener('DOMContentLoaded', function() {
+            const intervalSelect = document.getElementById('capture-interval');
+            if (intervalSelect) {
+                intervalSelect.addEventListener('change', function() {
+                    if (autoCapture) {
+                        // Restart auto capture dengan interval baru
+                        toggleAutoCapture(); // Stop
+                        toggleAutoCapture(); // Start dengan interval baru
+                    }
+                });
+            }
+        });
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('image-modal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Start periodic status updates
+        setInterval(updateStatus, 1000);
+
+        // CSS animations untuk notifications
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+        // Fungsi untuk update image representation display
+        function updateImageRepresentation(imageData) {
+            const representationDisplay = document.getElementById('representation-display');
+            if (representationDisplay && imageData) {
+                representationDisplay.innerHTML = `
+                    <div class="current-image-preview">
+                        <img src="/static/captures/${imageData.filename}" alt="Current Image" style="max-width: 100%; height: auto; border-radius: 8px;">
+                        <div class="image-info">
+                            <p><strong>File:</strong> ${imageData.filename}</p>
+                            <p><strong>Waktu:</strong> ${imageData.timestamp}</p>
+                            <p><strong>Warna:</strong> ${imageData.color}</p>
+                        </div>
+                    </div>
+                `;
+                
+                // Simpan filename untuk fungsi analisis
+                currentImageForAnalysis = imageData.filename;
+            }
+        }
+
+        // Variabel global untuk menyimpan image yang sedang dianalisis
+        let currentImageForAnalysis = null;
+
+        // Fungsi untuk menampilkan histogram
+        function showHistogram() {
+            if (!currentImageForAnalysis) {
+                showNotification('Tidak ada gambar untuk dianalisis. Ambil foto terlebih dahulu!', 'warning');
+                return;
+            }
+            
+            fetch(`/analyze_image/histogram/${currentImageForAnalysis}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showAnalysisModal('Histogram Analysis', data.histogram_html);
+                    } else {
+                        showNotification('Gagal menganalisis histogram', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Error menganalisis histogram', 'error');
+                });
+        }
+
+        // Fungsi untuk menampilkan color space
+        function showColorSpace() {
+            if (!currentImageForAnalysis) {
+                showNotification('Tidak ada gambar untuk dianalisis. Ambil foto terlebih dahulu!', 'warning');
+                return;
+            }
+            
+            fetch(`/analyze_image/colorspace/${currentImageForAnalysis}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showAnalysisModal('Color Space Analysis', data.colorspace_html);
+                    } else {
+                        showNotification('Gagal menganalisis color space', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Error menganalisis color space', 'error');
+                });
+        }
+
+        // Fungsi untuk menampilkan edge detection
+        function showEdgeDetection() {
+            if (!currentImageForAnalysis) {
+                showNotification('Tidak ada gambar untuk dianalisis. Ambil foto terlebih dahulu!', 'warning');
+                return;
+            }
+            
+            fetch(`/analyze_image/edges/${currentImageForAnalysis}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showAnalysisModal('Edge Detection Analysis', data.edges_html);
+                    } else {
+                        showNotification('Gagal menganalisis edge detection', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Error menganalisis edge detection', 'error');
+                });
+        }
+
+        // Fungsi untuk menampilkan features
+        function showFeatures() {
+            if (!currentImageForAnalysis) {
+                showNotification('Tidak ada gambar untuk dianalisis. Ambil foto terlebih dahulu!', 'warning');
+                return;
+            }
+            
+            fetch(`/analyze_image/features/${currentImageForAnalysis}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showAnalysisModal('Feature Analysis', data.features_html);
+                    } else {
+                        showNotification('Gagal menganalisis features', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Error menganalisis features', 'error');
+                });
+        }
+
+        // Fungsi untuk menampilkan modal analisis
+        function showAnalysisModal(title, content) {
+            // Buat modal baru atau gunakan yang existing
+            let analysisModal = document.getElementById('analysis-modal');
+            
+            if (!analysisModal) {
+                analysisModal = document.createElement('div');
+                analysisModal.id = 'analysis-modal';
+                analysisModal.className = 'analysis-modal';
+                analysisModal.innerHTML = `
+                    <div class="analysis-modal-content">
+                        <div class="analysis-modal-header">
+                            <h3 id="analysis-modal-title">${title}</h3>
+                            <span class="analysis-modal-close" onclick="closeAnalysisModal()">&times;</span>
+                        </div>
+                        <div class="analysis-modal-body" id="analysis-modal-body">
+                            ${content}
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(analysisModal);
+            } else {
+                document.getElementById('analysis-modal-title').textContent = title;
+                document.getElementById('analysis-modal-body').innerHTML = content;
+            }
+            
+            analysisModal.style.display = 'flex';
+        }
+
+        // Fungsi untuk menutup modal analisis
+        function closeAnalysisModal() {
+            const analysisModal = document.getElementById('analysis-modal');
+            if (analysisModal) {
+                analysisModal.style.display = 'none';
+            }
+        }
     </script>
 </body>
 </html>
